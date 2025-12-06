@@ -21,4 +21,5 @@ export enum ResourceType {
   ARTICLE = 'article',
   VIDEO = 'video',
   AUDIO = 'audio',
+  UNDEFINED = 'undefined',
 }

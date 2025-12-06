@@ -3,7 +3,7 @@ import { CreateResourceProps, ResourceProps } from './resource.types';
 export class ResourceEntity {
   private props: ResourceProps;
 
-  private constructor(props: ResourceProps) {
+  constructor(props: ResourceProps) {
     this.props = props;
   }
 
