@@ -21,7 +21,7 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
   }
 
   async save(resource: ResourceEntity): Promise<string> {
-    const model = new ResourceModel().fromEntity(resource);
+    const model = ResourceModel.fromEntity(resource);
     const savedResource = await this.repository.save(model);
     return savedResource.id;
   }

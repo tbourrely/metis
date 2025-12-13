@@ -9,10 +9,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { RequestDTO } from './create.dto';
 import { CreateCommand } from './create.command';
 import { Result, match } from 'oxide.ts';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResourceAlreadyExistsError } from '@modules/resource/domain/resource.errors';
+import { routesV1 } from 'src/configs/routing';
 
-@Controller('/resource')
+@Controller(routesV1.version)
+@ApiTags(routesV1.tags.resources)
 export class CreateHttpController {
   constructor(private readonly commandBus: CommandBus) {}
 
@@ -21,7 +23,7 @@ export class CreateHttpController {
     description: 'Resource created successfully',
     type: String,
   })
-  @Post()
+  @Post(routesV1.resources.root)
   async create(@Body() body: RequestDTO): Promise<string> {
     const command = new CreateCommand(
       body.type,

@@ -6,9 +6,11 @@ import { CreateService } from './commands/create/create.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ResourceModel } from './database/sql/resource.model';
 import { CreateHttpController } from './commands/create/create.http.controller';
+import { DeleteHttpController } from './commands/delete/delete.http.controller';
+import { DeleteService } from './commands/delete/delete.service';
 
 @Module({
-  controllers: [CreateHttpController],
+  controllers: [CreateHttpController, DeleteHttpController],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
     {
@@ -16,6 +18,7 @@ import { CreateHttpController } from './commands/create/create.http.controller';
       useClass: SqlResourceRepository,
     },
     CreateService,
+    DeleteService,
   ],
 })
 export class ResourceModule {}
