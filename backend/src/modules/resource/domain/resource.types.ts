@@ -18,9 +18,6 @@ export interface Source {
 }
 
 export enum ResourceType {
-  PAPER = 'paper',
-  ARTICLE = 'article',
-  VIDEO = 'video',
-  AUDIO = 'audio',
-  UNDEFINED = 'undefined',
+  DOCUMENT = 'document',
+  TEXT = 'text',
 }
