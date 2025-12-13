@@ -8,9 +8,15 @@ import { ResourceModel } from './database/sql/resource.model';
 import { CreateHttpController } from './commands/create/create.http.controller';
 import { DeleteHttpController } from './commands/delete/delete.http.controller';
 import { DeleteService } from './commands/delete/delete.service';
+import { GetAllHttpController } from './queries/get-all/get-all.http.controller';
+import { GetAllQueryHandler } from './queries/get-all/get-all.query-handler';
 
 @Module({
-  controllers: [CreateHttpController, DeleteHttpController],
+  controllers: [
+    CreateHttpController,
+    DeleteHttpController,
+    GetAllHttpController,
+  ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
     {
@@ -19,6 +25,7 @@ import { DeleteService } from './commands/delete/delete.service';
     },
     CreateService,
     DeleteService,
+    GetAllQueryHandler,
   ],
 })
 export class ResourceModule {}

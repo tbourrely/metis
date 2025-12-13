@@ -1,5 +1,6 @@
 import { ResourceType } from '@modules/resource/domain/resource.types';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 
 export class SourceDTO {
@@ -26,27 +27,6 @@ export class RequestDTO {
 
   @ApiProperty()
   @ValidateNested()
+  @Type(() => SourceDTO)
   readonly source: SourceDTO;
-}
-
-export class ResponseDTO {
-  @ApiProperty()
-  @IsString()
-  readonly id: string;
-
-  @ApiProperty({ enum: ResourceType })
-  @IsEnum(ResourceType)
-  readonly type: ResourceType;
-
-  @ApiProperty()
-  @IsString()
-  readonly name: string;
-
-  @ApiProperty()
-  @ValidateNested()
-  readonly source: SourceDTO;
-
-  @ApiProperty()
-  @IsString()
-  readonly createdAt: string;
 }

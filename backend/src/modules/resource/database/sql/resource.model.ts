@@ -10,6 +10,7 @@ export class ResourceModel {
   name: string;
   @Column({ type: 'enum', enum: ResourceType })
   type: ResourceType;
+  @Column()
   sourceName: string;
   @Column()
   sourceUrl: string;
