@@ -22,6 +22,9 @@ export class ReaderModeQueryHandler {
     private readonly repository: ResourceRepositoryPort,
   ) {}
 
+  /**
+   * Returns the content of a given resource as it would be rendered by firefox readermode.
+   */
   async execute(query: ReaderModeQuery): Promise<Result<string, Error>> {
     const resource = await this.repository.findByName(query.resourceName);
     if (!resource) {
@@ -34,6 +37,7 @@ export class ReaderModeQueryHandler {
 
     const url = resource.source.url;
 
+    // maybe a gateway could be used here, but it seems unnecessary for now, KISS :)
     const content = await fetch(url);
     const text = await content.text();
     const { window } = new JSDOM(text, { url });

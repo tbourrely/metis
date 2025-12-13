@@ -22,7 +22,7 @@ export class ReaderModeHttpController {
 
   @ApiResponse({
     status: 200,
-    description: 'Reader mode content',
+    description: 'Reader mode content, as it would be rendered in firefox',
     type: String,
   })
   @Get(routesV1.resources.readermode)
