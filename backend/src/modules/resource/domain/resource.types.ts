@@ -1,4 +1,5 @@
 export interface ResourceProps {
+  id: string;
   name: string;
   createdAt: Date;
   type: ResourceType;

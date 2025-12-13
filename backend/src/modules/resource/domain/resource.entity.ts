@@ -11,7 +11,12 @@ export class ResourceEntity {
     return new ResourceEntity({
       ...props,
       createdAt: new Date(),
+      id: crypto.randomUUID(),
     });
+  }
+
+  get id() {
+    return this.props.id;
   }
 
   get name() {
