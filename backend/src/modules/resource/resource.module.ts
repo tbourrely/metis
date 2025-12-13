@@ -10,12 +10,15 @@ import { DeleteHttpController } from './commands/delete/delete.http.controller';
 import { DeleteService } from './commands/delete/delete.service';
 import { GetAllHttpController } from './queries/get-all/get-all.http.controller';
 import { GetAllQueryHandler } from './queries/get-all/get-all.query-handler';
+import { ReaderModeHttpController } from './queries/readermode/readermode.http.controller';
+import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-handler';
 
 @Module({
   controllers: [
     CreateHttpController,
     DeleteHttpController,
     GetAllHttpController,
+    ReaderModeHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -26,6 +29,7 @@ import { GetAllQueryHandler } from './queries/get-all/get-all.query-handler';
     CreateService,
     DeleteService,
     GetAllQueryHandler,
+    ReaderModeQueryHandler,
   ],
 })
 export class ResourceModule {}

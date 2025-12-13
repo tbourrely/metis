@@ -1,7 +1,13 @@
 import { ResourceType } from '@modules/resource/domain/resource.types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from 'class-validator';
 
 export class SourceDTO {
   @ApiProperty()
@@ -11,7 +17,7 @@ export class SourceDTO {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsUrl()
   readonly url: string;
 }
 

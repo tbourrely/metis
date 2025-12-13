@@ -9,3 +9,9 @@ export class ResourceNotFoundError extends Error {
     super(`Resource with name "${resourceName}" does not exist.`);
   }
 }
+
+export class UnsupportedActionError extends Error {
+  constructor(action: string) {
+    super(`The action "${action}" is not supported on this resource.`);
+  }
+}

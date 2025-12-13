@@ -13,6 +13,7 @@ const config: Config = {
   moduleNameMapper: {
     '^@modules/(.*)': '<rootDir>/modules/$1',
   },
+  transformIgnorePatterns: ['<rootDir>/node_modules/jsdom/.*'],
 };
 
 export default config;
