@@ -38,7 +38,7 @@ describe('ResourceCreateService', () => {
     jest.spyOn(repository, 'save').mockResolvedValue('resource-id-123');
 
     const command = new CreateCommand(
-      ResourceType.PAPER,
+      ResourceType.TEXT,
       'Sample Resource',
       'Sample Source',
       'http://example.com/data',
@@ -57,14 +57,14 @@ describe('ResourceCreateService', () => {
       new ResourceEntity({
         id: 'existing-id',
         name: 'Sample Resource',
-        type: ResourceType.PAPER,
+        type: ResourceType.TEXT,
         source: { name: 'Sample Source', url: 'http://example.com/data' },
         createdAt: new Date(),
       }),
     );
 
     const command = new CreateCommand(
-      ResourceType.PAPER,
+      ResourceType.TEXT,
       'Sample Resource',
       'Sample Source',
       'http://example.com/data',

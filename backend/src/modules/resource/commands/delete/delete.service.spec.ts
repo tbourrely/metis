@@ -38,7 +38,7 @@ describe('ResourceDeleteService', () => {
       new ResourceEntity({
         id: 'resource-id-123',
         name: 'Sample Resource',
-        type: ResourceType.PAPER,
+        type: ResourceType.TEXT,
         source: { name: 'Sample Source', url: 'http://example.com/data' },
         createdAt: new Date(),
       }),
