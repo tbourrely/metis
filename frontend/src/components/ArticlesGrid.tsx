@@ -1,4 +1,3 @@
-import React from 'react'
 import ArticleCard from './ArticleCard'
 
 export default function ArticlesGrid({ articles, onMenuOpen }: { articles: any[]; onMenuOpen: (e: React.MouseEvent, id: number) => void }) {

@@ -1,5 +1,3 @@
-import React from 'react'
-
 type Props = {
   article: { id: number; title: string; author: string; read?: boolean }
   onMenuOpen: (e: React.MouseEvent, id: number) => void

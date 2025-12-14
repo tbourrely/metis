@@ -1,10 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import ResourceView from '../../views/Resource'
 
 export const Route = createFileRoute('/resources/$resourceId')({
-  component: Resource,
+  component: ResourceView,
 })
-
-function Resource() {
-  const { resourceId } = Route.useParams()
-  return <div className="p-6">Resource ID: {resourceId}</div>
-}
