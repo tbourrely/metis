@@ -12,7 +12,7 @@ import { JSDOM } from 'jsdom';
 import { Result, Err, Ok } from 'oxide.ts';
 
 export class ReaderModeQuery {
-  constructor(readonly resourceName: string) {}
+  constructor(readonly resourceId: string) {}
 }
 
 @QueryHandler(ReaderModeQuery)
@@ -26,9 +26,9 @@ export class ReaderModeQueryHandler {
    * Returns the content of a given resource as it would be rendered by firefox readermode.
    */
   async execute(query: ReaderModeQuery): Promise<Result<string, Error>> {
-    const resource = await this.repository.findByName(query.resourceName);
+    const resource = await this.repository.findById(query.resourceId);
     if (!resource) {
-      return Err(new ResourceNotFoundError(query.resourceName));
+      return Err(new ResourceNotFoundError(query.resourceId));
     }
 
     if (resource.type !== ResourceType.TEXT) {

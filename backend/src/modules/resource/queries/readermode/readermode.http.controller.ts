@@ -26,8 +26,8 @@ export class ReaderModeHttpController {
     type: String,
   })
   @Get(routesV1.resources.readermode)
-  async getReaderModeContent(@Param('name') name: string): Promise<string> {
-    const query = new ReaderModeQuery(name);
+  async getReaderModeContent(@Param('id') id: string): Promise<string> {
+    const query = new ReaderModeQuery(id);
     const result: Result<string, Error> = await this.queryBus.execute(query);
     return match(result, {
       Ok: (content) => content,
