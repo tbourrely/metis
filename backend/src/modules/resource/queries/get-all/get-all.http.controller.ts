@@ -3,8 +3,8 @@ import { QueryBus } from '@nestjs/cqrs';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { routesV1 } from 'src/configs/routing';
 import { GetAllQuery } from './get-all.query-handler';
-import { ResponseDTO } from './get-all.response.dto';
 import { ResourceEntity } from '@modules/resource/domain/resource.entity';
+import { ResourceDTO } from '@modules/resource/shared/dto';
 
 @Controller(routesV1.version)
 @ApiTags(routesV1.tags.resources)
@@ -14,12 +14,12 @@ export class GetAllHttpController {
   @ApiResponse({
     status: 200,
     description: 'List of all resources',
-    type: [ResponseDTO],
+    type: [ResourceDTO],
   })
   @Get(routesV1.resources.root)
-  async getAllResources(): Promise<ResponseDTO[]> {
+  async getAllResources(): Promise<ResourceDTO[]> {
     const query = new GetAllQuery();
     const resources: ResourceEntity[] = await this.queryBus.execute(query);
-    return resources.map((resource) => ResponseDTO.fromEntity(resource));
+    return resources.map((resource) => ResourceDTO.fromEntity(resource));
   }
 }

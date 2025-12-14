@@ -1,6 +1,14 @@
+import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ResourceEntity } from '@modules/resource/domain/resource.entity';
 import { ResourceType } from '@modules/resource/domain/resource.types';
 import { ApiProperty } from '@nestjs/swagger';
+
+export class GetByIDDTO {
+  @ApiProperty({ type: String, format: 'uuid' })
+  @IsUUID()
+  @IsNotEmpty()
+  readonly id: string;
+}
 
 export class SourceDTO {
   @ApiProperty()
@@ -10,7 +18,7 @@ export class SourceDTO {
   url: string;
 }
 
-export class ResponseDTO {
+export class ResourceDTO {
   @ApiProperty()
   id: string;
 
@@ -26,8 +34,8 @@ export class ResponseDTO {
   @ApiProperty()
   createdAt: string;
 
-  static fromEntity(entity: ResourceEntity): ResponseDTO {
-    const dto = new ResponseDTO();
+  static fromEntity(entity: ResourceEntity): ResourceDTO {
+    const dto = new ResourceDTO();
     dto.id = entity.id;
     dto.type = entity.type;
     dto.name = entity.name;

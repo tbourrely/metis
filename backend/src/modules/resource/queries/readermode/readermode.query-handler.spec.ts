@@ -41,9 +41,7 @@ describe('ReaderModeQueryHandler', () => {
       }),
     );
 
-    const result = await handler.execute(
-      new ReaderModeQuery('example-id'),
-    );
+    const result = await handler.execute(new ReaderModeQuery('example-id'));
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toContain(
       'Yagni originally is an acronym that stands for', // snippet from the article
@@ -74,9 +72,7 @@ describe('ReaderModeQueryHandler', () => {
         },
       }),
     );
-    const result = await handler.execute(
-      new ReaderModeQuery('example-pdf-id'),
-    );
+    const result = await handler.execute(new ReaderModeQuery('example-pdf-id'));
 
     expect(result.isErr()).toBe(true);
   });

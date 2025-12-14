@@ -12,6 +12,8 @@ import { GetAllHttpController } from './queries/get-all/get-all.http.controller'
 import { GetAllQueryHandler } from './queries/get-all/get-all.query-handler';
 import { ReaderModeHttpController } from './queries/readermode/readermode.http.controller';
 import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-handler';
+import { GetByIdHttpController } from './queries/get-by-id/get-by-id.http.controller';
+import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler';
 
 @Module({
   controllers: [
@@ -19,6 +21,7 @@ import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-ha
     DeleteHttpController,
     GetAllHttpController,
     ReaderModeHttpController,
+    GetByIdHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -30,6 +33,7 @@ import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-ha
     DeleteService,
     GetAllQueryHandler,
     ReaderModeQueryHandler,
+    GetByIdQueryHandler,
   ],
 })
 export class ResourceModule {}

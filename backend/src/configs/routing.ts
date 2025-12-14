@@ -11,6 +11,7 @@ export const routesV1: Routes = {
   tags: { resources: 'Resources' },
   resources: {
     root: '/resources',
+    read: '/resources/:id',
     delete: '/resources/:id',
     readermode: '/resources/:id/readermode',
   },
