@@ -9,6 +9,16 @@ function Home() {
   const { articles, handleDelete, handleToggleRead } = useArticles()
   const [menuInfo, setMenuInfo] = useState<{ id: string; top: number; left: number } | null>(null)
 
+  const handleDeleteAndClose = async (id: string) => {
+    try {
+      await handleDelete(id)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setMenuInfo(null)
+    }
+  }
+
   useEffect(() => {
     const onDoc = () => setMenuInfo(null)
     document.addEventListener('click', onDoc)
@@ -29,7 +39,7 @@ function Home() {
 
       <main className="flex-1 p-6">
         <ArticlesGrid articles={articles} onMenuOpen={openMenuFor} />
-        <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDelete} articles={articles} />
+        <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDeleteAndClose} articles={articles} />
       </main>
     </div>
   )
