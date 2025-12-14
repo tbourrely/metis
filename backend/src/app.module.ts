@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ResourceModule } from '@modules/resource/resource.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -21,7 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     CqrsModule.forRoot(),
     ResourceModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
