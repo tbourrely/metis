@@ -11,6 +11,7 @@ import { DeleteCommand } from './delete.command';
 import { ResourceNotFoundError } from '@modules/resource/domain/resource.errors';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { routesV1 } from 'src/configs/routing';
+import { DeleteDTO } from './delete.dto';
 
 @Controller(routesV1.version)
 @ApiTags(routesV1.tags.resources)
@@ -23,8 +24,8 @@ export class DeleteHttpController {
     description: 'Resource deleted successfully',
     type: Boolean,
   })
-  async deleteResource(@Param('name') name: string): Promise<boolean> {
-    const command = new DeleteCommand(name);
+  async deleteResource(@Param() params: DeleteDTO): Promise<boolean> {
+    const command = new DeleteCommand(params.id);
 
     const deletionResult: Result<boolean, Error> =
       await this.commandBus.execute(command);

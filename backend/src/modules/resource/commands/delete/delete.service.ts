@@ -14,9 +14,9 @@ export class DeleteService {
   ) {}
 
   async execute(command: DeleteCommand): Promise<Result<boolean, Error>> {
-    const resource = await this.repository.findByName(command.name);
+    const resource = await this.repository.findById(command.id);
     if (!resource) {
-      return Err(new ResourceNotFoundError(command.name));
+      return Err(new ResourceNotFoundError(command.id));
     }
 
     return Ok(await this.repository.delete(resource));

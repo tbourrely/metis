@@ -18,7 +18,7 @@ describe('ResourceDeleteService', () => {
         {
           provide: RESOURCE_REPOSITORY,
           useValue: {
-            findByName: jest.fn(),
+            findById: jest.fn(),
             delete: jest.fn(),
           },
         },
@@ -34,7 +34,7 @@ describe('ResourceDeleteService', () => {
   });
 
   it('should delete a resource successfully', async () => {
-    jest.spyOn(repository, 'findByName').mockResolvedValue(
+    jest.spyOn(repository, 'findById').mockResolvedValue(
       new ResourceEntity({
         id: 'resource-id-123',
         name: 'Sample Resource',
@@ -56,7 +56,7 @@ describe('ResourceDeleteService', () => {
   });
 
   it('should return an error if resource not found', async () => {
-    jest.spyOn(repository, 'findByName').mockResolvedValue(null);
+    jest.spyOn(repository, 'findById').mockResolvedValue(null);
 
     const command = new DeleteCommand('non-existent-id');
 

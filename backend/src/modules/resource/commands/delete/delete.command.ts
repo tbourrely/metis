@@ -1,3 +1,3 @@
 export class DeleteCommand {
-  constructor(readonly name: string) {}
+  constructor(readonly id: string) {}
 }

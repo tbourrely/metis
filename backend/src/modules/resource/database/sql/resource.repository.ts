@@ -12,6 +12,14 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     private readonly repository: Repository<ResourceModel>,
   ) {}
 
+  async findById(id: string): Promise<ResourceEntity | null> {
+    const result = await this.repository.findOne({ where: { id } });
+    if (!result) {
+      return null;
+    }
+    return result.toEntity();
+  }
+
   async findByName(name: string): Promise<ResourceEntity | null> {
     const result = await this.repository.findOne({ where: { name } });
     if (!result) {
