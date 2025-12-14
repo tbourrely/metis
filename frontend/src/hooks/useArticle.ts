@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "@tanstack/react-router";
+import { useParams, useNavigate } from "@tanstack/react-router";
+import useDeleteArticle from "./useDeleteArticle";
 import type { Article } from "../types/article";
 
 // Hook to provide article data and actions (uses API)
@@ -19,6 +20,8 @@ export default function useArticle() {
     "<p>No content available.</p>",
   );
   const [read, setRead] = useState(false);
+  const { deleteArticle } = useDeleteArticle();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!id) return;
@@ -78,9 +81,13 @@ export default function useArticle() {
   }, [id]);
 
   const toggleRead = () => setRead((r) => !r);
-  const remove = () => {
-    // simulate deletion/navigation for now
-    window.location.href = "/";
+  const remove = async () => {
+    try {
+      await deleteArticle(id);
+      navigate({ to: "/" });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return { id, article, content, read, toggleRead, remove };

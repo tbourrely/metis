@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import useDeleteArticle from './useDeleteArticle'
 import type { Article } from "../types/article";
 
 type ArticleWithState = Article & { read?: boolean };
 
 export default function useArticles() {
   const [articles, setArticles] = useState<ArticleWithState[]>([]);
+  const { deleteArticle } = useDeleteArticle()
 
   useEffect(() => {
     const ac = new AbortController();
@@ -29,8 +31,14 @@ export default function useArticles() {
     return () => ac.abort();
   }, []);
 
-  const handleDelete = (id: string) =>
-    setArticles((prev) => prev.filter((a) => a.id !== id));
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteArticle(id)
+      setArticles((prev) => prev.filter((a) => a.id !== id))
+    } catch (err) {
+      console.error(err)
+    }
+  }
   const handleToggleRead = (id: string) =>
     setArticles((prev) =>
       prev.map((a) => (a.id === id ? { ...a, read: !a.read } : a)),
