@@ -1,6 +1,9 @@
+import type { MouseEvent } from 'react'
+import type { Article } from '../types/article'
+
 type Props = {
-  article: { id: number; title: string; author: string; read?: boolean }
-  onMenuOpen: (e: React.MouseEvent, id: number) => void
+  article: Article & { read?: boolean }
+  onMenuOpen: (e: MouseEvent, id: string) => void
 }
 
 export default function ArticleCard({ article, onMenuOpen }: Props) {
@@ -17,8 +20,8 @@ export default function ArticleCard({ article, onMenuOpen }: Props) {
           </button>
         </div>
 
-        <h4 className="font-bold">{article.title}</h4>
-        <p className="text-sm text-gray-600 mt-2">By {article.author}</p>
+        <h4 className="font-bold">{article.name}</h4>
+        <p className="text-sm text-gray-600 mt-2">By {article.source.name}</p>
       </article>
     </a>
   )

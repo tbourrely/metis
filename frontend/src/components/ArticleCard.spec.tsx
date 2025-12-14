@@ -4,7 +4,7 @@ import ArticleCard from './ArticleCard'
 
 describe('ArticleCard', () => {
   it('renders title and author and opens menu on button click', () => {
-    const article = { id: 1, title: 'Test Article', author: 'Jane Doe' }
+    const article = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '' }
     const onMenuOpen = vi.fn()
 
     render(<ArticleCard article={article} onMenuOpen={onMenuOpen} />)
@@ -16,6 +16,6 @@ describe('ArticleCard', () => {
     fireEvent.click(btn)
     expect(onMenuOpen).toHaveBeenCalled()
     // ensure called with event and id
-    expect(onMenuOpen.mock.calls[0][1]).toBe(1)
+    expect(onMenuOpen.mock.calls[0][1]).toBe('1')
   })
 })

@@ -5,8 +5,8 @@ import ArticlesGrid from './ArticlesGrid'
 describe('ArticlesGrid', () => {
   it('renders a grid of article cards', () => {
     const articles = [
-      { id: 1, title: 'A1', author: 'A' },
-      { id: 2, title: 'A2', author: 'B' },
+      { id: '1', name: 'A1', type: 'document', source: { name: 'A', url: '' }, createdAt: '' },
+      { id: '2', name: 'A2', type: 'document', source: { name: 'B', url: '' }, createdAt: '' },
     ]
     const onMenuOpen = () => {}
 

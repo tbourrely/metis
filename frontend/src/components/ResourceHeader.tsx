@@ -1,4 +1,4 @@
-import type { Article } from '../hooks/useArticle'
+import type { Article } from '../types/article'
 
 export default function ResourceHeader({ article, read }: { article: Article; read: boolean }) {
   return (
@@ -7,10 +7,10 @@ export default function ResourceHeader({ article, read }: { article: Article; re
 
       <div>
         <h1 className="text-2xl font-bold mt-0 flex items-center gap-2">
-          {article.title}
+          {article.name}
           {read && <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">Read</span>}
         </h1>
-        <p className="text-sm text-gray-600 mt-1">By {article.author}</p>
+        <p className="text-sm text-gray-600 mt-1">By {article.source.name}</p>
       </div>
     </header>
   )

@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom'
+import type { Article } from '../types/article';
 
 export default function ArticleMenu({
   menuInfo,
@@ -6,10 +7,10 @@ export default function ArticleMenu({
   onDelete,
   articles,
 }: {
-  menuInfo: { id: number; top: number; left: number } | null
-  onToggleRead: (id: number) => void
-  onDelete: (id: number) => void
-  articles: any[]
+  menuInfo: { id: string; top: number; left: number } | null
+  onToggleRead: (id: string) => void
+  onDelete: (id: string) => void
+  articles: (Article & { read?: boolean })[]
 }) {
   if (!menuInfo) return null
   const article = articles.find((a) => a.id === menuInfo.id)

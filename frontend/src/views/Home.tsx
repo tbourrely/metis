@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import type { MouseEvent } from 'react'
 import Sidebar from '../components/Sidebar'
 import ArticlesGrid from '../components/ArticlesGrid'
 import ArticleMenu from '../components/ArticleMenu'
@@ -6,7 +7,7 @@ import useArticles from '../hooks/useArticles'
 
 function Home() {
   const { articles, handleDelete, handleToggleRead } = useArticles()
-  const [menuInfo, setMenuInfo] = useState<{ id: number; top: number; left: number } | null>(null)
+  const [menuInfo, setMenuInfo] = useState<{ id: string; top: number; left: number } | null>(null)
 
   useEffect(() => {
     const onDoc = () => setMenuInfo(null)
@@ -14,7 +15,7 @@ function Home() {
     return () => document.removeEventListener('click', onDoc)
   }, [])
 
-  const openMenuFor = (e: React.MouseEvent, articleId: number) => {
+  const openMenuFor = (e: MouseEvent, articleId: string) => {
     e.preventDefault()
     e.stopPropagation()
     const target = e.currentTarget as HTMLElement
