@@ -27,11 +27,7 @@ function Home() {
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <h3 className="text-xl font-semibold mb-4">Welcome Home, hey !</h3>
-        <p className="mb-4">This is the home page of our application.</p>
-
         <ArticlesGrid articles={articles} onMenuOpen={openMenuFor} />
-
         <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDelete} articles={articles} />
       </main>
     </div>
