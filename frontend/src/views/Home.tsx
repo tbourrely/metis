@@ -25,12 +25,12 @@ function Home() {
     return () => document.removeEventListener('click', onDoc)
   }, [])
 
-  const openMenuFor = (e: MouseEvent, articleId: string) => {
+  const openMenuFor = (e: MouseEvent, id: string) => {
     e.preventDefault()
     e.stopPropagation()
     const target = e.currentTarget as HTMLElement
     const rect = target.getBoundingClientRect()
-    setMenuInfo({ id: articleId, top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX - 160 })
+    setMenuInfo({ id, top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX - 160 })
   }
 
   return (
