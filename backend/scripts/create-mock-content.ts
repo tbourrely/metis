@@ -44,12 +44,18 @@ const MOCK_RESOURCES: Array<{
   {
     type: 'text',
     name: 'mock-resource-dynamic-1',
-    source: { name: 'mock-source-1', url: 'https://example.com/resource/1' },
+    source: {
+      name: 'mock-source-1',
+      url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf',
+    },
   },
   {
     type: 'document',
     name: 'mock-resource-dynamic-2',
-    source: { name: 'mock-source-2', url: 'https://example.com/resource/2' },
+    source: {
+      name: 'mock-source-2',
+      url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_2.pdf',
+    },
   },
 ];
 
