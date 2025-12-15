@@ -1,7 +1,7 @@
 export type Article = {
   id: string;
   name: string;
-  type: string;
+  type: "text" | "document";
   source: {
     name: string;
     url: string;

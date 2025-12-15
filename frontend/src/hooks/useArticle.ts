@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import useDeleteArticle from "./useDeleteArticle";
-import useUpdateRead from './useUpdateRead'
+import useUpdateRead from "./useUpdateRead";
 import type { Article } from "../types/article";
 
 // Hook to provide article data and actions (uses API)
@@ -23,7 +23,7 @@ export default function useArticle() {
   );
   const [read, setRead] = useState(false);
   const { deleteArticle } = useDeleteArticle();
-  const { updateRead } = useUpdateRead()
+  const { updateRead } = useUpdateRead();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,30 +39,34 @@ export default function useArticle() {
         return res.json();
       })
       .then((data) => {
-        // Accept either Article or { article, content }
         if (!data) return;
-        setArticle(data);
-        setRead(data.read || false);
-      })
-      .catch((err: Error) => {
-        if (err.name === "AbortError") return;
-        console.error(err);
-      });
 
-    // fetch reader-mode content (HTML/text)
-    fetch(
-      `http://localhost:3000/v1/resources/${encodeURIComponent(id)}/readermode`,
-      {
-        signal: ac.signal,
-      },
-    )
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.text();
-      })
-      .then((text) => {
-        if (typeof text === "string" && text.length > 0) {
-          setContent(text);
+        let resolvedArticle: Article | null = null;
+        resolvedArticle = data;
+
+        if (resolvedArticle) {
+          setArticle(resolvedArticle as Article);
+          setRead((resolvedArticle.read as boolean) || false);
+
+          // fetch reader-mode content only for text articles
+          if (resolvedArticle.type === "text") {
+            fetch(
+              `http://localhost:3000/v1/resources/${encodeURIComponent(id)}/readermode`,
+              { signal: ac.signal },
+            )
+              .then((r) => {
+                if (!r.ok) return null;
+                return r.text();
+              })
+              .then((text) => {
+                if (typeof text === "string" && text.length > 0)
+                  setContent(text);
+              })
+              .catch((err: Error) => {
+                if (err.name === "AbortError") return;
+                console.error(err);
+              });
+          }
         }
       })
       .catch((err: Error) => {
@@ -74,15 +78,15 @@ export default function useArticle() {
   }, [id]);
 
   const toggleRead = async () => {
-    const newRead = !read
+    const newRead = !read;
     try {
-      await updateRead(id, newRead)
-      setRead(newRead)
-      setArticle((a) => ({ ...a, read: newRead }))
+      await updateRead(id, newRead);
+      setRead(newRead);
+      setArticle((a) => ({ ...a, read: newRead }));
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
   const remove = async () => {
     try {
       await deleteArticle(id);
