@@ -33,6 +33,10 @@ export class UpdateDTO {
   readonly name?: string;
 
   @ApiProperty()
+  @IsOptional()
+  readonly read?: boolean;
+
+  @ApiProperty()
   @ValidateNested()
   @Type(() => SourceDTO)
   @IsOptional()

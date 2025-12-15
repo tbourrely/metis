@@ -7,4 +7,5 @@ export type Article = {
     url: string;
   };
   createdAt: string;
+  read: boolean;
 };

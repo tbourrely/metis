@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react'
 import type { Article } from '../types/article'
 
 type Props = {
-  article: Article & { read?: boolean }
+  article: Article,
   onMenuOpen: (e: MouseEvent, id: string) => void
 }
 

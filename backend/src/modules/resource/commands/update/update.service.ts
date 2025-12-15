@@ -22,6 +22,10 @@ export class UpdateService {
       return Err(new ResourceNotFoundError(command.id));
     }
 
+    if (command.read !== undefined) {
+      resource.read = command.read;
+    }
+
     if (command.type !== undefined) {
       resource.type = command.type;
     }

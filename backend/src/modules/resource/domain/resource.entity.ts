@@ -14,6 +14,7 @@ export class ResourceEntity {
   static create(props: CreateResourceProps): ResourceEntity {
     return new ResourceEntity({
       ...props,
+      read: false,
       createdAt: new Date(),
       id: crypto.randomUUID(),
     });
@@ -39,6 +40,10 @@ export class ResourceEntity {
     return this.props.source;
   }
 
+  get read() {
+    return this.props.read;
+  }
+
   set name(name: string) {
     this.props.name = name;
   }
@@ -49,5 +54,9 @@ export class ResourceEntity {
 
   set source(source: { name: string; url: string }) {
     this.props.source = source;
+  }
+
+  set read(read: boolean) {
+    this.props.read = read;
   }
 }

@@ -18,6 +18,8 @@ export class ResourceModel {
   createdAt: Date;
   @Column()
   updatedAt: Date;
+  @Column({ default: false })
+  read: boolean;
 
   static fromEntity(entity: ResourceEntity): ResourceModel {
     const model = new ResourceModel();
@@ -28,6 +30,7 @@ export class ResourceModel {
     model.sourceUrl = entity.source.url;
     model.createdAt = entity.createdAt;
     model.updatedAt = new Date();
+    model.read = entity.read;
     return model;
   }
 
@@ -41,6 +44,7 @@ export class ResourceModel {
         url: this.sourceUrl,
       },
       createdAt: this.createdAt,
+      read: this.read,
     });
   }
 }

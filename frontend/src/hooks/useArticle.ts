@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import useDeleteArticle from "./useDeleteArticle";
+import useUpdateRead from './useUpdateRead'
 import type { Article } from "../types/article";
 
 // Hook to provide article data and actions (uses API)
@@ -15,12 +16,14 @@ export default function useArticle() {
     type: "document",
     source: { name: "Unknown", url: "" },
     createdAt: new Date().toISOString(),
+    read: false,
   }); // TODO: do not default to dummy
   const [content, setContent] = useState<string>(
     "<p>No content available.</p>",
   );
   const [read, setRead] = useState(false);
   const { deleteArticle } = useDeleteArticle();
+  const { updateRead } = useUpdateRead()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,18 +41,8 @@ export default function useArticle() {
       .then((data) => {
         // Accept either Article or { article, content }
         if (!data) return;
-        if (typeof data === "object") {
-          if ("id" in data && "name" in data) {
-            setArticle(data as Article);
-          }
-          if ("content" in data && typeof data.content === "string") {
-            setContent(data.content);
-          }
-          // some APIs may return { article: {...}, content: '...' }
-          if ("article" in data && typeof data.article === "object") {
-            setArticle(data.article as Article);
-          }
-        }
+        setArticle(data);
+        setRead(data.read || false);
       })
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
@@ -80,7 +73,16 @@ export default function useArticle() {
     return () => ac.abort();
   }, [id]);
 
-  const toggleRead = () => setRead((r) => !r);
+  const toggleRead = async () => {
+    const newRead = !read
+    try {
+      await updateRead(id, newRead)
+      setRead(newRead)
+      setArticle((a) => ({ ...a, read: newRead }))
+    } catch (err) {
+      console.error(err)
+    }
+  }
   const remove = async () => {
     try {
       await deleteArticle(id);

@@ -4,6 +4,7 @@ export interface ResourceProps {
   createdAt: Date;
   type: ResourceType;
   source: Source;
+  read: boolean;
 }
 
 export interface CreateResourceProps {

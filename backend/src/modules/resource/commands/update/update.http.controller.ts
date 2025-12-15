@@ -35,6 +35,7 @@ export class UpdateHttpController {
       params.id,
       body.type,
       body.name,
+      body.read,
       body.source?.name,
       body.source?.url,
     );

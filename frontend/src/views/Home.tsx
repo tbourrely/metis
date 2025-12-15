@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import useHideRead from '../hooks/useHideRead'
 import type { MouseEvent } from 'react'
 import Sidebar from '../components/Sidebar'
 import ArticlesGrid from '../components/ArticlesGrid'
 import ArticleMenu from '../components/ArticleMenu'
+import ResourcesHeader from '../components/ResourcesHeader'
 import useArticles from '../hooks/useArticles'
 
 function Home() {
@@ -33,12 +35,16 @@ function Home() {
     setMenuInfo({ id, top: rect.bottom + window.scrollY + 4, left: rect.right + window.scrollX - 160 })
   }
 
+  const [hideRead, setHideRead] = useHideRead(true)
+
   return (
     <div className="flex h-full min-h-screen">
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <ArticlesGrid articles={articles} onMenuOpen={openMenuFor} />
+        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} />
+
+        <ArticlesGrid articles={hideRead ? articles.filter((a) => !a.read) : articles} onMenuOpen={openMenuFor} />
         <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDeleteAndClose} articles={articles} />
       </main>
     </div>

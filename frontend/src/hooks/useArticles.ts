@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import useDeleteArticle from './useDeleteArticle'
+import useDeleteArticle from "./useDeleteArticle";
+import useUpdateRead from './useUpdateRead'
 import type { Article } from "../types/article";
 
-type ArticleWithState = Article & { read?: boolean };
-
 export default function useArticles() {
-  const [articles, setArticles] = useState<ArticleWithState[]>([]);
-  const { deleteArticle } = useDeleteArticle()
+  const [articles, setArticles] = useState<Article[]>([]);
+  const { deleteArticle } = useDeleteArticle();
+  const { updateRead } = useUpdateRead()
 
   useEffect(() => {
     const ac = new AbortController();
@@ -17,11 +17,7 @@ export default function useArticles() {
         return res.json();
       })
       .then((data) => {
-        // assume API returns Article[]; add optional read flag defaulting to false
-        const withState: ArticleWithState[] = Array.isArray(data)
-          ? data.map((a: Article) => ({ ...a, read: false }))
-          : [];
-        setArticles(withState);
+        setArticles(data);
       })
       .catch((err: Error) => {
         if (err.name === "AbortError") return;
@@ -33,16 +29,23 @@ export default function useArticles() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteArticle(id)
-      setArticles((prev) => prev.filter((a) => a.id !== id))
+      await deleteArticle(id);
+      setArticles((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleRead = async (id: string) => {
+    const found = articles.find((a) => a.id === id)
+    const newRead = !found?.read
+    try {
+      await updateRead(id, Boolean(newRead))
+      setArticles((prev) => prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)))
     } catch (err) {
       console.error(err)
     }
   }
-  const handleToggleRead = (id: string) =>
-    setArticles((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, read: !a.read } : a)),
-    );
 
   return { articles, handleDelete, handleToggleRead };
 }

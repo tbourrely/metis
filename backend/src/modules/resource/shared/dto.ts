@@ -34,6 +34,9 @@ export class ResourceDTO {
   @ApiProperty()
   createdAt: string;
 
+  @ApiProperty()
+  read: boolean;
+
   static fromEntity(entity: ResourceEntity): ResourceDTO {
     const dto = new ResourceDTO();
     dto.id = entity.id;
@@ -44,6 +47,7 @@ export class ResourceDTO {
       url: entity.source.url,
     };
     dto.createdAt = entity.createdAt.toISOString();
+    dto.read = entity.read;
     return dto;
   }
 }
