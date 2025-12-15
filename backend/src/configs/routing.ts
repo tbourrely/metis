@@ -13,6 +13,7 @@ export const routesV1: Routes = {
     root: '/resources',
     read: '/resources/:id',
     delete: '/resources/:id',
+    update: '/resources/:id',
     readermode: '/resources/:id/readermode',
   },
 };

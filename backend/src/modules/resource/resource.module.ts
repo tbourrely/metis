@@ -14,6 +14,8 @@ import { ReaderModeHttpController } from './queries/readermode/readermode.http.c
 import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-handler';
 import { GetByIdHttpController } from './queries/get-by-id/get-by-id.http.controller';
 import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler';
+import { UpdateHttpController } from './commands/update/update.http.controller';
+import { UpdateService } from './commands/update/update.service';
 
 @Module({
   controllers: [
@@ -22,6 +24,7 @@ import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler
     GetAllHttpController,
     ReaderModeHttpController,
     GetByIdHttpController,
+    UpdateHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -31,6 +34,7 @@ import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler
     },
     CreateService,
     DeleteService,
+    UpdateService,
     GetAllQueryHandler,
     ReaderModeQueryHandler,
     GetByIdQueryHandler,

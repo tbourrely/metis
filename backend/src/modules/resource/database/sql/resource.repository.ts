@@ -46,4 +46,10 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     const models = await this.repository.find();
     return models.map((model) => model.toEntity());
   }
+
+  async update(resource: ResourceEntity): Promise<ResourceEntity> {
+    const model = ResourceModel.fromEntity(resource);
+    const updatedResource = await this.repository.save(model);
+    return updatedResource.toEntity();
+  }
 }

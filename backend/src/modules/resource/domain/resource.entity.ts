@@ -1,4 +1,8 @@
-import { CreateResourceProps, ResourceProps } from './resource.types';
+import {
+  CreateResourceProps,
+  ResourceProps,
+  ResourceType,
+} from './resource.types';
 
 export class ResourceEntity {
   private props: ResourceProps;
@@ -33,5 +37,17 @@ export class ResourceEntity {
 
   get source() {
     return this.props.source;
+  }
+
+  set name(name: string) {
+    this.props.name = name;
+  }
+
+  set type(type: ResourceType) {
+    this.props.type = type;
+  }
+
+  set source(source: { name: string; url: string }) {
+    this.props.source = source;
   }
 }
