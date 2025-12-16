@@ -26,8 +26,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     // Log full error with stack when available
     const message = `${req?.method ?? 'UNKNOWN'} ${req?.url ?? 'UNKNOWN'} ${status} - ${JSON.stringify(responseBody)}`;
-    if (exception.stack) this.logger.error(message, exception.stack);
-    else this.logger.error(message);
+
+    this.log(status, message, exception.stack);
 
     // Send standard JSON error response
     try {
@@ -35,6 +35,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } catch (err) {
       // In case response is not available
       this.logger.error('Failed to send error response', (err as Error).stack);
+    }
+  }
+
+  log(status: number, message: string, trace?: string) {
+    if (status >= 500) {
+      this.logger.error(message, trace);
+    } else if (status >= 400) {
+      this.logger.warn(message);
+    } else {
+      this.logger.log(message);
     }
   }
 }

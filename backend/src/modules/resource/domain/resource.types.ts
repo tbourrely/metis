@@ -21,4 +21,5 @@ export interface Source {
 export enum ResourceType {
   DOCUMENT = 'document',
   TEXT = 'text',
+  UNKNOWN = 'unknown',
 }

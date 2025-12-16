@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { RESOURCE_REPOSITORY } from './di-tokens';
+import { RESOURCE_GATEWAY, RESOURCE_REPOSITORY } from './di-tokens';
 import { SqlResourceRepository } from './database/sql/resource.repository';
 import { CreateService } from './commands/create/create.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,6 +16,7 @@ import { GetByIdHttpController } from './queries/get-by-id/get-by-id.http.contro
 import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler';
 import { UpdateHttpController } from './commands/update/update.http.controller';
 import { UpdateService } from './commands/update/update.service';
+import { ResourceGateway } from './gateways/resource.gateway';
 
 @Module({
   controllers: [
@@ -31,6 +32,10 @@ import { UpdateService } from './commands/update/update.service';
     {
       provide: RESOURCE_REPOSITORY,
       useClass: SqlResourceRepository,
+    },
+    {
+      provide: RESOURCE_GATEWAY,
+      useClass: ResourceGateway,
     },
     CreateService,
     DeleteService,

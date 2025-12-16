@@ -1,1 +1,3 @@
 export const RESOURCE_REPOSITORY = Symbol('RESOURCE_REPOSITORY');
+
+export const RESOURCE_GATEWAY = Symbol('RESOURCE_GATEWAY');

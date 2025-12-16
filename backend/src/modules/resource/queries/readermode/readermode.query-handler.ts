@@ -38,7 +38,13 @@ export class ReaderModeQueryHandler {
     const url = resource.source.url;
 
     // maybe a gateway could be used here, but it seems unnecessary for now, KISS :)
-    const content = await fetch(url);
+    const content = await fetch(url, {
+      headers: {
+        // set a user-agent to avoid being blocked by some websites
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+      },
+    });
     const text = await content.text();
     const { window } = new JSDOM(text, { url });
     const article = new Readability(window.document).parse();

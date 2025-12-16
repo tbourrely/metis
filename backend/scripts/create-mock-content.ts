@@ -18,45 +18,23 @@ const COUNT = Number(process.env.COUNT || 5);
 
 // Edit this array to provide concrete/mock resources to post to the API.
 // Each entry must match the RequestDTO shape: { type, name, source: { name, url } }
-const MOCK_RESOURCES: Array<{
-  type: string;
-  name: string;
-  source: { name: string; url: string };
-}> = [
+const MOCK_RESOURCES: Array<{ url: string }> = [
   {
-    type: 'text',
-    name: 'example-article',
-    source: { name: 'yagni', url: 'https://martinfowler.com/bliki/Yagni.html' },
+    url: 'https://martinfowler.com/bliki/Yagni.html',
   },
   {
-    type: 'text',
-    name: 'example-article-2',
-    source: { name: 'example', url: 'https://example.com/article' },
+    url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf',
   },
   {
-    type: 'document',
-    name: 'sample-pdf',
-    source: {
-      name: 'dummy-pdf',
-      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    },
+    url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_2.pdf',
   },
   {
-    type: 'text',
-    name: 'mock-resource-dynamic-1',
-    source: {
-      name: 'mock-source-1',
-      url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf',
-    },
+    url: 'https://rfd.shared.oxide.computer/rfd/0576?utm_source=substack&utm_medium=email',
   },
   {
-    type: 'document',
-    name: 'mock-resource-dynamic-2',
-    source: {
-      name: 'mock-source-2',
-      url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_2.pdf',
-    },
+    url: 'https://obie.medium.com/what-happens-when-the-coding-becomes-the-least-interesting-part-of-the-work-ab10c213c660',
   },
+  { url: 'https://livebook.manning.com/book/secure-by-design/chapter-9' },
 ];
 
 function postJson(
@@ -105,13 +83,13 @@ async function main() {
 
     try {
       const res = await postJson(target, payload);
-      console.log(`[POST] ${payload.name} -> ${res.statusCode}`);
+      console.log(`[POST] ${payload.url} -> ${res.statusCode}`);
       if (res.bodyText) {
         console.log('  response:', res.bodyText);
       }
     } catch (err: any) {
       console.error(
-        `[ERROR] creating ${payload.name}:`,
+        `[ERROR] creating ${payload.url}:`,
         err && err.message ? err.message : err,
       );
     }
