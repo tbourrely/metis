@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom'
-import type { Article } from '../types/article';
+import type { Resource } from '../types/resource';
 
-export default function ArticleMenu({
+export default function ResourceMenu({
   menuInfo,
   onToggleRead,
   onDelete,
@@ -10,7 +10,7 @@ export default function ArticleMenu({
   menuInfo: { id: string; top: number; left: number } | null
   onToggleRead: (id: string) => void
   onDelete: (id: string) => void
-  articles: (Article & { read?: boolean })[]
+  articles: (Resource & { read?: boolean })[]
 }) {
   if (!menuInfo) return null
   const article = articles.find((a) => a.id === menuInfo.id)

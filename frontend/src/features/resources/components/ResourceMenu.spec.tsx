@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import ArticleMenu from './ArticleMenu'
+import ResourceMenu from './ResourceMenu'
 
 describe('ArticleMenu', () => {
   it('renders menu and calls handlers', () => {
@@ -9,7 +9,7 @@ describe('ArticleMenu', () => {
     const onDelete = vi.fn()
     const menuInfo = { id: '1', top: 0, left: 0 }
 
-    render(<ArticleMenu menuInfo={menuInfo} onToggleRead={onToggleRead} onDelete={onDelete} articles={articles} />)
+    render(<ResourceMenu menuInfo={menuInfo} onToggleRead={onToggleRead} onDelete={onDelete} articles={articles} />)
 
     expect(screen.getByText('Mark as read')).toBeInTheDocument()
     expect(screen.getByText('Delete')).toBeInTheDocument()

@@ -1,12 +1,12 @@
 import type { MouseEvent } from 'react'
-import type { Article } from '../types/article'
+import type { Resource } from '../types/resource'
 
 type Props = {
-  article: Article,
+  article: Resource,
   onMenuOpen: (e: MouseEvent, id: string) => void
 }
 
-export default function ArticleCard({ article, onMenuOpen }: Props) {
+export default function ResourceCard({ article, onMenuOpen }: Props) {
   return (
     <a href={`/resources/${article.id}`} className="block relative">
       <article className={`p-4 bg-white rounded shadow hover:shadow-md transition ${article.read ? 'opacity-60 line-through' : ''}`}>

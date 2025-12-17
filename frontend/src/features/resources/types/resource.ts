@@ -1,4 +1,4 @@
-export type Article = {
+export type Resource = {
   id: string;
   name: string;
   type: "text" | "document";

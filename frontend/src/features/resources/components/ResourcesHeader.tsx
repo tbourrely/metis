@@ -1,6 +1,6 @@
 import CreateResourceForm from "./CreateResourceForm";
 
-export default function ResourcesHeader({ hideRead, setHideRead, onCreated }: { hideRead: boolean; setHideRead: (v: boolean) => void, onCreated?: () => void }) {
+export default function ResourcesHeader({ hideRead, setHideRead, onCreated }: { hideRead: boolean; setHideRead: (v: boolean) => void; onCreated?: () => void }) {
 
   return (
     <header className="mb-4 flex flex-col">

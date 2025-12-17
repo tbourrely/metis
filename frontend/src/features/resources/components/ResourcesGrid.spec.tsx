@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import ArticlesGrid from './ArticlesGrid'
+import ResourcesGrid from './ResourcesGrid'
 
 describe('ArticlesGrid', () => {
   it('renders a grid of article cards', () => {
@@ -10,7 +10,7 @@ describe('ArticlesGrid', () => {
     ]
     const onMenuOpen = () => {}
 
-    render(<ArticlesGrid articles={articles} onMenuOpen={onMenuOpen} />)
+    render(<ResourcesGrid articles={articles} onMenuOpen={onMenuOpen} />)
 
     expect(screen.getByText('A1')).toBeInTheDocument()
     expect(screen.getByText('A2')).toBeInTheDocument()

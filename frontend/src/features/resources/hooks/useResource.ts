@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import useDeleteArticle from "./useDeleteArticle";
+import useDeleteResource from "./useDeleteResource";
 import useUpdateRead from "./useUpdateRead";
-import type { Article } from "../types/article";
+import type { Resource } from "../types/resource";
 
 // Hook to provide article data and actions (uses API)
-export default function useArticle() {
+export default function useResource() {
   // extract article ID from URL path with tanstack-router
   const { resourceId } = useParams({ strict: false });
   const id = resourceId || "";
 
-  const [article, setArticle] = useState<Article>({
+  const [article, setArticle] = useState<Resource>({
     id,
     name: `Article ${id}`,
     type: "document",
@@ -22,7 +22,7 @@ export default function useArticle() {
     "<p>No content available.</p>",
   );
   const [read, setRead] = useState(false);
-  const { deleteArticle } = useDeleteArticle();
+  const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
   const navigate = useNavigate();
 
@@ -41,11 +41,11 @@ export default function useArticle() {
       .then((data) => {
         if (!data) return;
 
-        let resolvedArticle: Article | null = null;
+        let resolvedArticle: Resource | null = null;
         resolvedArticle = data;
 
         if (resolvedArticle) {
-          setArticle(resolvedArticle as Article);
+          setArticle(resolvedArticle as Resource);
           setRead((resolvedArticle.read as boolean) || false);
 
           // fetch reader-mode content only for text articles
@@ -89,7 +89,7 @@ export default function useArticle() {
   };
   const remove = async () => {
     try {
-      await deleteArticle(id);
+      await deleteResource(id);
       navigate({ to: "/" });
     } catch (err) {
       console.error(err);

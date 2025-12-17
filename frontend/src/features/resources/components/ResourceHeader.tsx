@@ -1,6 +1,6 @@
-import type { Article } from '../types/article'
+import type { Resource } from '../types/resource'
 
-export default function ResourceHeader({ article, read }: { article: Article; read: boolean }) {
+export default function ResourceHeader({ article, read }: { article: Resource; read: boolean }) {
   return (
     <header className="mb-4">
       <a href="/" className="text-blue-600 hover:underline inline-block mb-2">← Back</a>

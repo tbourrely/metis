@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import useDeleteArticle from "./useDeleteArticle";
-import useUpdateRead from './useUpdateRead'
-import type { Article } from "../types/article";
+import useDeleteResource from "./useDeleteResource";
+import useUpdateRead from "./useUpdateRead";
+import type { Resource } from "../types/resource";
 
-export default function useArticles() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const { deleteArticle } = useDeleteArticle();
-  const { updateRead } = useUpdateRead()
+export default function useResources() {
+  const [articles, setArticles] = useState<Resource[]>([]);
+  const { deleteResource } = useDeleteResource();
+  const { updateRead } = useUpdateRead();
 
   const reloadArticles = async (signal?: AbortSignal) => {
     try {
@@ -14,8 +14,8 @@ export default function useArticles() {
       if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
       const data = await res.json();
       setArticles(data);
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
+    } catch (err: unknown) {
+      if ((err as Error).name === "AbortError") return;
       console.error(err);
     }
   };
@@ -28,7 +28,7 @@ export default function useArticles() {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteArticle(id);
+      await deleteResource(id);
       setArticles((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error(err);
@@ -36,15 +36,17 @@ export default function useArticles() {
   };
 
   const handleToggleRead = async (id: string) => {
-    const found = articles.find((a) => a.id === id)
-    const newRead = !found?.read
+    const found = articles.find((a) => a.id === id);
+    const newRead = !found?.read;
     try {
-      await updateRead(id, Boolean(newRead))
-      setArticles((prev) => prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)))
+      await updateRead(id, Boolean(newRead));
+      setArticles((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)),
+      );
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }
+  };
 
   return { articles, handleDelete, handleToggleRead, reloadArticles };
 }

@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import useHideRead from '../hooks/useHideRead'
 import type { MouseEvent } from 'react'
 import Sidebar from '../components/Sidebar'
-import ArticlesGrid from '../components/ArticlesGrid'
-import ArticleMenu from '../components/ArticleMenu'
-import ResourcesHeader from '../components/ResourcesHeader'
-import useArticles from '../hooks/useArticles'
+import ResourcesGrid from '../features/resources/components/ResourcesGrid'
+import ResourceMenu from '../features/resources/components/ResourceMenu'
+import ResourcesHeader from '../features/resources/components/ResourcesHeader'
+import useResources from '../features/resources/hooks/useResources'
 
 function Home() {
-  const { articles, handleDelete, handleToggleRead, reloadArticles } = useArticles()
+  const { articles, handleDelete, handleToggleRead, reloadArticles } = useResources()
   const [menuInfo, setMenuInfo] = useState<{ id: string; top: number; left: number } | null>(null)
 
   const handleDeleteAndClose = async (id: string) => {
@@ -44,8 +44,8 @@ function Home() {
       <main className="flex-1 p-6">
         <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadArticles} />
 
-        <ArticlesGrid articles={hideRead ? articles.filter((a) => !a.read) : articles} onMenuOpen={openMenuFor} />
-        <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDeleteAndClose} articles={articles} />
+        <ResourcesGrid articles={hideRead ? articles.filter((a) => !a.read) : articles} onMenuOpen={openMenuFor} />
+        <ResourceMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDeleteAndClose} articles={articles} />
       </main>
     </div>
   )
