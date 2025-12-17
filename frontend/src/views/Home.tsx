@@ -8,7 +8,7 @@ import ResourcesHeader from '../components/ResourcesHeader'
 import useArticles from '../hooks/useArticles'
 
 function Home() {
-  const { articles, handleDelete, handleToggleRead } = useArticles()
+  const { articles, handleDelete, handleToggleRead, reloadArticles } = useArticles()
   const [menuInfo, setMenuInfo] = useState<{ id: string; top: number; left: number } | null>(null)
 
   const handleDeleteAndClose = async (id: string) => {
@@ -42,7 +42,7 @@ function Home() {
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} />
+        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadArticles} />
 
         <ArticlesGrid articles={hideRead ? articles.filter((a) => !a.read) : articles} onMenuOpen={openMenuFor} />
         <ArticleMenu menuInfo={menuInfo} onToggleRead={handleToggleRead} onDelete={handleDeleteAndClose} articles={articles} />

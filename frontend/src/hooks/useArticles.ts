@@ -8,22 +8,21 @@ export default function useArticles() {
   const { deleteArticle } = useDeleteArticle();
   const { updateRead } = useUpdateRead()
 
+  const reloadArticles = async (signal?: AbortSignal) => {
+    try {
+      const res = await fetch("http://localhost:3000/v1/resources", { signal });
+      if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
+      const data = await res.json();
+      setArticles(data);
+    } catch (err: any) {
+      if (err.name === "AbortError") return;
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     const ac = new AbortController();
-
-    fetch("http://localhost:3000/v1/resources", { signal: ac.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        setArticles(data);
-      })
-      .catch((err: Error) => {
-        if (err.name === "AbortError") return;
-        console.error(err);
-      });
-
+    reloadArticles(ac.signal);
     return () => ac.abort();
   }, []);
 
@@ -47,5 +46,5 @@ export default function useArticles() {
     }
   }
 
-  return { articles, handleDelete, handleToggleRead };
+  return { articles, handleDelete, handleToggleRead, reloadArticles };
 }
