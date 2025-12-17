@@ -2,6 +2,8 @@ import { ResourceType } from '../domain/resource.types';
 import { ResourceGateway } from './resource.gateway';
 
 describe('ResourceGateway', () => {
+  jest.retryTimes(2); // Retry tests up to 2 times in case of transient network issues
+
   it.each([
     {
       url: 'https://martinfowler.com/bliki/Yagni.html',
