@@ -3,20 +3,23 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import ResourceCard from './ResourceCard'
 import type { Resource } from '../../types/resource'
 
-describe('ArticleCard', () => {
-  it('renders title and author and opens menu on button click', () => {
-    const article: Resource = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
-    const onMenuOpen = vi.fn()
+describe('ResourceCard', () => {
+  it('renders title and author and handles read and delete button clicks', () => {
+    const resource: Resource = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
+    const onToggleRead = vi.fn()
+    const onDelete = vi.fn()
 
-    render(<ResourceCard article={article} onMenuOpen={onMenuOpen} />)
+    render(<ResourceCard article={resource} onToggleRead={onToggleRead} onDelete={onDelete} />)
 
     expect(screen.getByText('Test Article')).toBeInTheDocument()
     expect(screen.getByText(/By Jane Doe/i)).toBeInTheDocument()
 
-    const btn = screen.getByText('⋯')
-    fireEvent.click(btn)
-    expect(onMenuOpen).toHaveBeenCalled()
-    // ensure called with event and id
-    expect(onMenuOpen.mock.calls[0][1]).toBe('1')
+    const readBtn = screen.getByText('Mark as Read')
+    fireEvent.click(readBtn)
+    expect(onToggleRead).toHaveBeenCalledWith('1')
+
+    const deleteBtn = screen.getByText('Delete')
+    fireEvent.click(deleteBtn)
+    expect(onDelete).toHaveBeenCalledWith('1')
   })
 })

@@ -24,7 +24,7 @@ export default function CreateResourceForm({ onCreated }: { onCreated?: () => vo
 
   return (<>
     <form className="mt-4 flex gap-2" onSubmit={save}>
-      <input id="url" name="url" type="url" placeholder="url" value={url} onChange={(e) => setUrl(e.target.value)} className={`border rounded px-3 py-1 ${error ? 'border-red-700' : 'border-gray-300'}`} />
+      <input id="url" name="url" type="url" placeholder="url" value={url} onChange={(e) => setUrl(e.target.value)} className={`border w-full rounded px-3 py-1 ${error ? 'border-red-700' : 'border-gray-300'}`} />
       <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Add</button>
     </form>
 

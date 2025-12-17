@@ -1,12 +1,17 @@
-import type { MouseEvent } from 'react'
 import ResourceCard from '../ResourceCard'
 import type { Resource } from '../../types/resource'
 
-export default function ResourcesGrid({ articles, onMenuOpen }: { articles: (Resource & { read?: boolean })[]; onMenuOpen: (e: MouseEvent, id: string) => void }) {
+type Props = {
+  articles: Resource[],
+  onToggleRead: (id: string) => void,
+  onDelete: (id: string) => void
+}
+
+export default function ResourcesGrid({ articles, onToggleRead, onDelete }: Props) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
       {articles.map((article) => (
-        <ResourceCard key={article.id} article={article} onMenuOpen={onMenuOpen} />
+        <ResourceCard key={article.id} article={article} onToggleRead={onToggleRead} onDelete={onDelete} />
       ))}
     </div>
   )
