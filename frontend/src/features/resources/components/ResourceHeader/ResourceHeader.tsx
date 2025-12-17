@@ -1,4 +1,4 @@
-import type { Resource } from '../types/resource'
+import type { Resource } from '../../types/resource'
 
 export default function ResourceHeader({ article, read }: { article: Resource; read: boolean }) {
   return (

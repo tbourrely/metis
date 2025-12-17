@@ -4,7 +4,7 @@ import CreateResourceForm from './CreateResourceForm'
 
 const createResourceMock = vi.fn()
 let errorValue: Error | null = null
-vi.mock('../hooks/useCreateResource', () => {
+vi.mock('../../hooks/useCreateResource', () => {
   return {
     default: () => ({ createResource: createResourceMock, error: errorValue })
   }

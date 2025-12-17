@@ -1,4 +1,4 @@
-import CreateResourceForm from "./CreateResourceForm";
+import CreateResourceForm from "../CreateResourceForm";
 
 export default function ResourcesHeader({ hideRead, setHideRead, onCreated }: { hideRead: boolean; setHideRead: (v: boolean) => void; onCreated?: () => void }) {
 

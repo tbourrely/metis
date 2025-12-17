@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import ResourceHeader from './ResourceHeader'
+import type { Resource } from '../../types/resource'
 
 describe('ResourceHeader', () => {
   it('renders backlink, title and author', () => {
-    const article = { id: '1', name: 'Test Title', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '' }
+    const article: Resource = { id: '1', name: 'Test Title', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
     render(<ResourceHeader article={article} read={false} />)
 
     expect(screen.getByText('← Back')).toBeInTheDocument()
@@ -13,7 +14,7 @@ describe('ResourceHeader', () => {
   })
 
   it('shows Read badge when read is true', () => {
-    const article = { id: '1', name: 'T', type: 'document', source: { name: 'A', url: '' }, createdAt: '' }
+    const article: Resource = { id: '1', name: 'T', type: 'document', source: { name: 'A', url: '' }, createdAt: '', read: true }
     render(<ResourceHeader article={article} read={true} />)
     expect(screen.getByText('Read')).toBeInTheDocument()
   })

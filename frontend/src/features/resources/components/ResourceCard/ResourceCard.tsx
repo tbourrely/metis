@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react'
-import type { Resource } from '../types/resource'
+import type { Resource } from '../../types/resource'
 
 type Props = {
   article: Resource,

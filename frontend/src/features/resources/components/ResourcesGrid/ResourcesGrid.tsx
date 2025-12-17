@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react'
-import ResourceCard from './ResourceCard'
-import type { Resource } from '../types/resource'
+import ResourceCard from '../ResourceCard'
+import type { Resource } from '../../types/resource'
 
 export default function ResourcesGrid({ articles, onMenuOpen }: { articles: (Resource & { read?: boolean })[]; onMenuOpen: (e: MouseEvent, id: string) => void }) {
   return (

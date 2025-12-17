@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import useCreateResource from "../hooks/useCreateResource";
+import useCreateResource from "../../hooks/useCreateResource";
 
 export default function CreateResourceForm({ onCreated }: { onCreated?: () => void }) {
   const { createResource, error } = useCreateResource();

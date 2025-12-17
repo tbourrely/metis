@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import ResourceCard from './ResourceCard'
+import type { Resource } from '../../types/resource'
 
 describe('ArticleCard', () => {
   it('renders title and author and opens menu on button click', () => {
-    const article = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '' }
+    const article: Resource = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
     const onMenuOpen = vi.fn()
 
     render(<ResourceCard article={article} onMenuOpen={onMenuOpen} />)

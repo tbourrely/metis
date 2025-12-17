@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom'
-import type { Resource } from '../types/resource';
+import type { Resource } from '../../types/resource';
 
 export default function ResourceMenu({
   menuInfo,

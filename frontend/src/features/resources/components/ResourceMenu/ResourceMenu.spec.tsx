@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import ResourceMenu from './ResourceMenu'
+import type { Resource } from '../../types/resource'
 
 describe('ArticleMenu', () => {
   it('renders menu and calls handlers', () => {
-    const articles = [{ id: '1', name: 'T', type: 'document', source: { name: 'A', url: '' }, createdAt: '' }]
+    const articles: Resource[] = [{ id: '1', name: 'T', type: 'document', source: { name: 'A', url: '' }, createdAt: '', read: false }]
     const onToggleRead = vi.fn()
     const onDelete = vi.fn()
     const menuInfo = { id: '1', top: 0, left: 0 }
