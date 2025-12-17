@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: backend
+      - name: Run linter
+        run: npm run lint --silent
+        working-directory: backend
       - name: Run tests
         run: npm test --silent
         working-directory: backend
@@ -36,6 +39,9 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: npm ci
+        working-directory: frontend
+      - name: Run linter
+        run: npm run lint --silent
         working-directory: frontend
       - name: Run tests
         run: npm test --silent
