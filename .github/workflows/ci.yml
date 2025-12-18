@@ -23,7 +23,18 @@ jobs:
       - name: Run linter
         run: npm run lint --silent
         working-directory: backend
+      - name: Install Chromium and make wrapper
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+          cat > $HOME/chrome-no-sandbox <<'EOF'
+          #!/bin/bash
+          exec /usr/bin/chromium-browser --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage "$@"
+          EOF
+          chmod +x $HOME/chrome-no-sandbox
       - name: Run tests
+        env:
+          PUPPETEER_EXECUTABLE_PATH: $HOME/chrome-no-sandbox
         run: npm test --silent
         working-directory: backend
 
