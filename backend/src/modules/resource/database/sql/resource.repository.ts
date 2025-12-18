@@ -1,6 +1,6 @@
 import { ResourceRepositoryPort } from '@modules/resource/database/resource.repository.port';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { ResourceModel } from './resource.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResourceEntity } from '@modules/resource/domain/resource.entity';
@@ -45,11 +45,18 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
   async findPaginated(
     offset: number,
     limit: number,
+    nameFilter?: string,
   ): Promise<{ items: ResourceEntity[]; total: number }> {
     const [models, total] = await this.repository.findAndCount({
       skip: offset,
       take: limit,
       order: { createdAt: 'DESC' },
+      where: nameFilter
+        ? [
+            { name: ILike(`%${nameFilter}%`) },
+            { sourceName: ILike(`%${nameFilter}%`) },
+          ]
+        : {},
     });
     return { items: models.map((m) => m.toEntity()), total };
   }

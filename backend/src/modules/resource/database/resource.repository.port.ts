@@ -8,6 +8,7 @@ export interface ResourceRepositoryPort {
   findPaginated(
     offset: number,
     limit: number,
+    nameFilter?: string,
   ): Promise<{ items: ResourceEntity[]; total: number }>;
   update(resource: ResourceEntity): Promise<ResourceEntity>;
 }

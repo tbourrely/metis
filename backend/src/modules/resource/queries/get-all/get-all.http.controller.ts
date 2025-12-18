@@ -19,11 +19,11 @@ export class GetAllHttpController {
   })
   @Get(routesV1.resources.root)
   async getAllResources(
-    @Query() pagination: PaginationQueryDTO,
+    @Query() params: PaginationQueryDTO,
   ): Promise<PaginatedResultDTO> {
-    const p = pagination?.page ?? 1;
-    const pp = pagination?.perPage ?? 20;
-    const query = new GetAllQuery(p, pp);
+    const p = params?.page ?? 1;
+    const pp = params?.perPage ?? 20;
+    const query = new GetAllQuery(p, pp, params?.name);
     const result: {
       items: ResourceEntity[];
       total: number;

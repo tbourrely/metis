@@ -32,6 +32,13 @@ export class PaginationQueryDTO {
   @Min(1)
   @Max(100)
   perPage?: number = 20;
+
+  @ApiPropertyOptional({
+    description: 'Filter by resource name / source name (like)',
+  })
+  @IsOptional()
+  @Type(() => String)
+  name?: string;
 }
 
 export class PaginatedResultDTO {

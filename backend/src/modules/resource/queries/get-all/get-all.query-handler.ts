@@ -8,6 +8,7 @@ export class GetAllQuery {
   constructor(
     readonly page: number = 1,
     readonly perPage: number = 20,
+    readonly name?: string,
   ) {}
 }
 
@@ -30,6 +31,7 @@ export class GetAllQueryHandler {
     const { items, total } = await this.repository.findPaginated(
       offset,
       perPage,
+      query.name,
     );
     return { items, total, page, perPage };
   }

@@ -1,6 +1,22 @@
+import { useState } from "react";
 import CreateResourceForm from "../CreateResourceForm";
 
-export default function ResourcesHeader({ hideRead, setHideRead, onCreated }: { hideRead: boolean; setHideRead: (v: boolean) => void; onCreated?: () => void }) {
+type ResourcesHeaderProps = {
+  hideRead: boolean;
+  setHideRead: (v: boolean) => void;
+  onCreated?: () => void;
+  onSearch?: (query: string) => void;
+}
+
+export default function ResourcesHeader({ hideRead, setHideRead, onCreated, onSearch }: ResourcesHeaderProps) {
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    onSearch?.(query);
+  }
 
   return (
     <header className="mb-4 flex flex-col">
@@ -14,6 +30,9 @@ export default function ResourcesHeader({ hideRead, setHideRead, onCreated }: { 
 
       <CreateResourceForm onCreated={onCreated} />
 
+      <hr className="my-4 border-gray-300" />
+
+      <input type="text" placeholder="Search resources..." className="border border-gray-300 w-full rounded px-3 py-2" value={searchQuery} onChange={handleSearchChange} />
     </header>
   )
 }

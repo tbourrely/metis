@@ -5,15 +5,19 @@ import ResourcesHeader from '../features/resources/components/ResourcesHeader'
 import useResources from '../features/resources/hooks/useResources'
 
 function Home() {
-  const { resources, handleDelete, handleToggleRead, reloadResources, page, setPage, totalPages } = useResources();
+  const { resources, handleDelete, handleToggleRead, reloadResources, page, setPage, totalPages, setNameFilter } = useResources();
   const [hideRead, setHideRead] = useHideRead(true)
+
+  const handleSearch = (query: string) => {
+    setNameFilter(query);
+  }
 
   return (
     <div className="flex h-full min-h-screen">
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadResources} />
+        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadResources} onSearch={handleSearch} />
 
         <ResourcesGrid resources={hideRead ? resources.filter((a) => !a.read) : resources} onDelete={handleDelete} onToggleRead={handleToggleRead} />
 

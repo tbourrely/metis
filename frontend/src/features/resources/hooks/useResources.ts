@@ -17,20 +17,26 @@ type PaginatedResponse = {
 export default function useResources(
   itemsPerPage: number = 20,
   pageInit: number = 1,
+  name?: string,
 ) {
   const [resources, setResources] = useState<Resource[]>([]);
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
   const [page, setPage] = useState(pageInit);
   const [totalPages, setTotalPages] = useState(0);
+  const [nameFilter, setNameFilter] = useState(name || "");
 
   const reloadResources = useCallback(
     async (signal?: AbortSignal) => {
       try {
-        const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
-        const url = new URL('/v1/resources', base);
+        const base =
+          import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
+        const url = new URL("/v1/resources", base);
         url.searchParams.append("perPage", itemsPerPage.toString());
         url.searchParams.append("page", page.toString());
+        if (nameFilter) {
+          url.searchParams.append("name", nameFilter);
+        }
         const res = await fetch(url, { signal });
         if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
         const data: PaginatedResponse = await res.json();
@@ -41,7 +47,7 @@ export default function useResources(
         console.error(err);
       }
     },
-    [itemsPerPage, page],
+    [itemsPerPage, page, nameFilter],
   );
 
   useEffect(() => {
@@ -80,5 +86,6 @@ export default function useResources(
     page,
     setPage,
     totalPages,
+    setNameFilter,
   };
 }
