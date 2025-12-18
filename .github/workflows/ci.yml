@@ -23,15 +23,18 @@ jobs:
       - name: Run linter
         run: npm run lint --silent
         working-directory: backend
-      - name: Install Chromium and make wrapper
+      - name: Install Google Chrome
         run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          printf '%s\n' '#!/bin/bash' 'exec /usr/bin/chromium-browser --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage "$@"' > $HOME/chrome-no-sandbox
-          chmod +x $HOME/chrome-no-sandbox
+          sudo apt-get install -y google-chrome-stable
+        env:
+          DEBIAN_FRONTEND: noninteractive
       - name: Run tests
         env:
-          PUPPETEER_EXECUTABLE_PATH: ${{ env.HOME }}/chrome-no-sandbox
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
+          CHROME_DEVEL_SANDBOX: /opt/google/chrome/chrome-sandbox
         run: npm test --silent
         working-directory: backend
 
