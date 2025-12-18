@@ -1,10 +1,29 @@
 import Check from './icons/check.svg?react';
 import Eye from './icons/eye.svg?react';
 import Bin from './icons/bin.svg?react';
+import Fullscreen from './icons/fullscreen.svg?react';
 
-export default function FloatingActions({ read, onToggleRead, onDelete }: { read: boolean; onToggleRead: () => void; onDelete: () => void }) {
+type FloatingActionsProps = {
+  read: boolean;
+  onToggleRead: () => void;
+  onDelete: () => void;
+  onToggleFullScreen?: () => void;
+};
+
+export default function FloatingActions({ read, onToggleRead, onDelete, onToggleFullScreen }: FloatingActionsProps) {
   return (
     <div className="fixed right-6 top-1/3 z-50 flex flex-col gap-2">
+
+      {onToggleFullScreen && (
+        <button
+          onClick={onToggleFullScreen}
+          className="bg-white border p-2 rounded shadow hover:bg-gray-50"
+          title="Toggle Fullscreen"
+        >
+          <Fullscreen />
+        </button>
+      )}
+
       <button
         onClick={onToggleRead}
         className="bg-white border p-2 rounded shadow hover:bg-gray-50"

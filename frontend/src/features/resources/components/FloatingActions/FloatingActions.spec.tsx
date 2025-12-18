@@ -27,4 +27,22 @@ describe('FloatingActions', () => {
     render(<FloatingActions read={true} onToggleRead={onToggleRead} onDelete={() => {}} />)
     expect(screen.getByTitle('Mark as unread')).toBeInTheDocument()
   })
+
+  it('calls onToggleFullScreen when provided', () => {
+    const onToggleFullScreen = vi.fn()
+    render(
+      <FloatingActions
+        read={false}
+        onToggleRead={() => {}}
+        onDelete={() => {}}
+        onToggleFullScreen={onToggleFullScreen}
+      />
+    )
+
+    const fsBtn = screen.getByTitle('Toggle Fullscreen')
+    expect(fsBtn).toBeInTheDocument()
+
+    fireEvent.click(fsBtn)
+    expect(onToggleFullScreen).toHaveBeenCalledTimes(1)
+  })
 })
