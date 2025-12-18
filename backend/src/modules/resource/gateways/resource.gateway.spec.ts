@@ -88,6 +88,7 @@ describe('ResourceGateway', () => {
     'https://longform.asmartbear.com/focus/',
     'https://queue.acm.org/detail.cfm?id=3454124',
     'https://www.uber.com/en-FR/blog/mysql-at-uber/',
+    'https://jimmyhmiller.com/overly-humble-programmer',
   ])('should extract information from: %s', async (url) => {
     const gw = new ResourceGateway();
 
@@ -99,6 +100,6 @@ describe('ResourceGateway', () => {
     expect(content.source.name).not.toHaveLength(0);
     expect(content.name).not.toHaveLength(0);
     expect(content.type).toBe(ResourceType.TEXT);
-    expect(content.estimatedReadingTime).toBeDefined();
+    expect(content.estimatedReadingTime).not.toBe(0);
   });
 });

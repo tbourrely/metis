@@ -2,7 +2,7 @@ import { Err, Ok, Result } from 'oxide.ts';
 import { ResourceType } from '../domain/resource.types';
 import { JSDOM } from 'jsdom';
 import { ResourceEntity } from '../domain/resource.entity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { Readability } from '@mozilla/readability';
 import puppeteer from 'puppeteer';
@@ -139,13 +139,45 @@ export class ResourceGateway {
       },
     });
 
-    // For text resources, we can also estimate reading time
-    // Documents like PDFs would require more complex parsing which is out of scope here for now
-    // TODO: Implement PDF text extraction
-    if (type === ResourceType.TEXT) {
-      entity.estimatedReadingTime = this.estimatedReadingTime(content, url);
+    if (type !== ResourceType.TEXT) {
+      return Ok(entity);
     }
 
+    // For text resources, we can also estimate reading time
+    // Documents like PDFs would require more complex parsing which is out of scope here for now
+    //---
+    // TODO: Implement PDF text extraction
+    const estimatedReadingTimeResult = this.estimatedReadingTime(content, url);
+    let estimed: number;
+
+    if (estimatedReadingTimeResult.isErr()) {
+      Logger.warn(
+        `Failed to estimate reading time for resource at ${url}: ${estimatedReadingTimeResult.unwrapErr().message} - proceeding with puppeteer fallback.`,
+      );
+
+      const fallback = await this.fetchWithPuppeteer(url);
+      if (fallback.isErr()) {
+        Logger.warn(
+          `Failed to estimate to fetch resource with fallback at ${url}: ${fallback.unwrapErr().message}`,
+        );
+        return Ok(entity); // return entity without reading time, better than failing entirely
+      }
+
+      const fallbackContent = this.cleanHtmlContent(fallback.unwrap().content);
+      const fallbackEstimed = this.estimatedReadingTime(fallbackContent, url);
+      if (fallbackEstimed.isErr()) {
+        Logger.warn(
+          `Could not estimate reading time for resource at ${url} even after fallback: ${fallbackEstimed.unwrapErr().message}`,
+        );
+        return Ok(entity); // same here, return without reading time
+      }
+
+      estimed = fallbackEstimed.unwrapOr(0);
+    } else {
+      estimed = estimatedReadingTimeResult.unwrap();
+    }
+
+    entity.estimatedReadingTime = estimed;
     return Ok(entity);
   }
 
@@ -169,18 +201,20 @@ export class ResourceGateway {
    * @param content The HTML content of the resource.
    * @returns Estimated reading time in minutes.
    */
-  estimatedReadingTime(content: string, url: string): number {
+  estimatedReadingTime(content: string, url: string): Result<number, Error> {
     const wordsPerMinute = 238; // Average reading speed, source: https://scholarwithin.com/average-reading-speed#spelling-ebook
 
     const { window } = new JSDOM(content, { url }); // TODO: extract DOM only once for both name and reading time
     const article = new Readability(window.document).parse();
     if (!article?.textContent) {
-      return 0; // FIXME: use an error or null to indicate failure to estimate
+      return Err(
+        new Error('Failed to parse article content for reading time.'),
+      );
     }
 
     const words = article?.textContent.split(/\s+/);
     const wordsCount = words.length;
-    return Math.ceil(wordsCount / wordsPerMinute);
+    return Ok(Math.ceil(wordsCount / wordsPerMinute));
   }
 
   extractNameFromMetadata(content: string, url: string): string | null {
