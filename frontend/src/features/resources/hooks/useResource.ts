@@ -29,9 +29,10 @@ export default function useResource() {
   useEffect(() => {
     if (!id) return;
     const ac = new AbortController();
+    const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
 
     // fetch article details
-    fetch(`http://localhost:3000/v1/resources/${encodeURIComponent(id)}`, {
+    fetch(`${base}/v1/resources/${encodeURIComponent(id)}`, {
       signal: ac.signal,
     })
       .then((res) => {
@@ -51,7 +52,7 @@ export default function useResource() {
           // fetch reader-mode content only for text articles
           if (resolvedArticle.type === "text") {
             fetch(
-              `http://localhost:3000/v1/resources/${encodeURIComponent(id)}/readermode`,
+              `${base}/v1/resources/${encodeURIComponent(id)}/readermode`,
               { signal: ac.signal },
             )
               .then((r) => {

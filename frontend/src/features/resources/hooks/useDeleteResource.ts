@@ -8,8 +8,9 @@ export default function useDeleteResource() {
     setLoading(true);
     setError(null);
     try {
+      const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
       const res = await fetch(
-        `http://localhost:3000/v1/resources/${encodeURIComponent(id)}`,
+        `${base}/v1/resources/${encodeURIComponent(id)}`,
         {
           method: "DELETE",
         },

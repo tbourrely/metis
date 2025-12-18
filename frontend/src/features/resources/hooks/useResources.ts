@@ -27,7 +27,8 @@ export default function useResources(
   const reloadResources = useCallback(
     async (signal?: AbortSignal) => {
       try {
-        const url = new URL("http://localhost:3000/v1/resources");
+        const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+        const url = new URL('/v1/resources', base);
         url.searchParams.append("perPage", itemsPerPage.toString());
         url.searchParams.append("page", page.toString());
         const res = await fetch(url, { signal });

@@ -9,7 +9,8 @@ export default function useCreateResource() {
     setError(null);
 
     try {
-      const res = await fetch(`http://localhost:3000/v1/resources`, {
+      const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+      const res = await fetch(`${base}/v1/resources`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
