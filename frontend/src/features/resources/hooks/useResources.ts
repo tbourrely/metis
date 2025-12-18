@@ -4,7 +4,7 @@ import useUpdateRead from "./useUpdateRead";
 import type { Resource } from "../types/resource";
 
 export default function useResources() {
-  const [articles, setArticles] = useState<Resource[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
 
@@ -13,7 +13,7 @@ export default function useResources() {
       const res = await fetch("http://localhost:3000/v1/resources", { signal });
       if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
       const data = await res.json();
-      setArticles(data);
+      setResources(data);
     } catch (err: unknown) {
       if ((err as Error).name === "AbortError") return;
       console.error(err);
@@ -29,18 +29,18 @@ export default function useResources() {
   const handleDelete = async (id: string) => {
     try {
       await deleteResource(id);
-      setArticles((prev) => prev.filter((a) => a.id !== id));
+      setResources((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleToggleRead = async (id: string) => {
-    const found = articles.find((a) => a.id === id);
+    const found = resources.find((a) => a.id === id);
     const newRead = !found?.read;
     try {
       await updateRead(id, Boolean(newRead));
-      setArticles((prev) =>
+      setResources((prev) =>
         prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)),
       );
     } catch (err) {
@@ -48,5 +48,5 @@ export default function useResources() {
     }
   };
 
-  return { articles, handleDelete, handleToggleRead, reloadArticles };
+  return { resources, handleDelete, handleToggleRead, reloadArticles };
 }

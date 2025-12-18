@@ -10,7 +10,7 @@ export default function useResource() {
   const { resourceId } = useParams({ strict: false });
   const id = resourceId || "";
 
-  const [article, setArticle] = useState<Resource>({
+  const [resource, setResource] = useState<Resource>({
     id,
     name: `Article ${id}`,
     type: "document",
@@ -45,7 +45,7 @@ export default function useResource() {
         resolvedArticle = data;
 
         if (resolvedArticle) {
-          setArticle(resolvedArticle as Resource);
+          setResource(resolvedArticle as Resource);
           setRead((resolvedArticle.read as boolean) || false);
 
           // fetch reader-mode content only for text articles
@@ -82,7 +82,7 @@ export default function useResource() {
     try {
       await updateRead(id, newRead);
       setRead(newRead);
-      setArticle((a) => ({ ...a, read: newRead }));
+      setResource((a) => ({ ...a, read: newRead }));
     } catch (err) {
       console.error(err);
     }
@@ -96,5 +96,5 @@ export default function useResource() {
     }
   };
 
-  return { id, article, content, read, toggleRead, remove };
+  return { id, resource, content, read, toggleRead, remove };
 }

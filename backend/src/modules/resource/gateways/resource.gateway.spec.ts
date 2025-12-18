@@ -10,6 +10,7 @@ describe('ResourceGateway', () => {
       expectedName: 'Yagni',
       expectedType: ResourceType.TEXT,
       expectedSourceName: 'martinfowler.com',
+      expectedReadingTime: 9,
     },
     {
       url: 'https://www.dddcommunity.org/wp-content/uploads/files/pdf_articles/Vernon_2011_1.pdf',
@@ -17,9 +18,23 @@ describe('ResourceGateway', () => {
       expectedType: ResourceType.DOCUMENT,
       expectedSourceName: 'www.dddcommunity.org',
     },
+    {
+      url: 'https://obie.medium.com/what-happens-when-the-coding-becomes-the-least-interesting-part-of-the-work-ab10c213c660',
+      expectedName:
+        'What happens when the coding becomes the least interesting part of the work | by Obie Fernandez | Dec, 2025 | Medium',
+      expectedType: ResourceType.TEXT,
+      expectedSourceName: 'obie.medium.com',
+      expectedReadingTime: 8,
+    },
   ])(
     'should fetch $url and extract correct metadata',
-    async ({ url, expectedName, expectedType, expectedSourceName }) => {
+    async ({
+      url,
+      expectedName,
+      expectedType,
+      expectedSourceName,
+      expectedReadingTime,
+    }) => {
       const gw = new ResourceGateway();
 
       const resourceDetails = await gw.get(url);
@@ -30,6 +45,12 @@ describe('ResourceGateway', () => {
       expect(content.source.name).toBe(expectedSourceName);
       expect(content.name).toBe(expectedName);
       expect(content.type).toBe(expectedType);
+      if (expectedReadingTime) {
+        expect(content.estimatedReadingTime).not.toBeUndefined();
+        expect(content.estimatedReadingTime).toBe(expectedReadingTime);
+      } else {
+        expect(content.estimatedReadingTime).toBeUndefined();
+      }
     },
   );
 

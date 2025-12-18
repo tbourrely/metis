@@ -8,4 +8,5 @@ export type Resource = {
   };
   createdAt: string;
   read: boolean;
+  estimatedReadingTime?: number;
 };

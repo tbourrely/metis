@@ -6,7 +6,7 @@ import type { Resource } from '../../types/resource'
 describe('ResourceHeader', () => {
   it('renders backlink, title and author', () => {
     const article: Resource = { id: '1', name: 'Test Title', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
-    render(<ResourceHeader article={article} read={false} />)
+    render(<ResourceHeader resource={article} read={false} />)
 
     expect(screen.getByText('← Back')).toBeInTheDocument()
     expect(screen.getByText('Test Title')).toBeInTheDocument()
@@ -15,7 +15,7 @@ describe('ResourceHeader', () => {
 
   it('shows Read badge when read is true', () => {
     const article: Resource = { id: '1', name: 'T', type: 'document', source: { name: 'A', url: '' }, createdAt: '', read: true }
-    render(<ResourceHeader article={article} read={true} />)
+    render(<ResourceHeader resource={article} read={true} />)
     expect(screen.getByText('Read')).toBeInTheDocument()
   })
 })

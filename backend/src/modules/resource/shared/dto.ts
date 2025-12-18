@@ -37,6 +37,9 @@ export class ResourceDTO {
   @ApiProperty()
   read: boolean;
 
+  @ApiProperty()
+  estimatedReadingTime?: number;
+
   static fromEntity(entity: ResourceEntity): ResourceDTO {
     const dto = new ResourceDTO();
     dto.id = entity.id;
@@ -48,6 +51,7 @@ export class ResourceDTO {
     };
     dto.createdAt = entity.createdAt.toISOString();
     dto.read = entity.read;
+    dto.estimatedReadingTime = entity.estimatedReadingTime;
     return dto;
   }
 }

@@ -9,7 +9,7 @@ describe('ResourceCard', () => {
     const onToggleRead = vi.fn()
     const onDelete = vi.fn()
 
-    render(<ResourceCard article={resource} onToggleRead={onToggleRead} onDelete={onDelete} />)
+    render(<ResourceCard resource={resource} onToggleRead={onToggleRead} onDelete={onDelete} />)
 
     expect(screen.getByText('Test Article')).toBeInTheDocument()
     expect(screen.getByText(/By Jane Doe/i)).toBeInTheDocument()

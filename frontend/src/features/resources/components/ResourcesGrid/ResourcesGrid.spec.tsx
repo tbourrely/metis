@@ -11,7 +11,7 @@ describe('ResourcesGrid', () => {
     ]
     const onToggleRead = vi.fn()
     const onDelete = vi.fn()
-    render(<ResourcesGrid articles={articles} onToggleRead={onToggleRead} onDelete={onDelete} />)
+    render(<ResourcesGrid resources={articles} onToggleRead={onToggleRead} onDelete={onDelete} />)
 
     expect(screen.getByText('A1')).toBeInTheDocument()
     expect(screen.getByText('A2')).toBeInTheDocument()

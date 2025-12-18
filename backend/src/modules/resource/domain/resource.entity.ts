@@ -44,6 +44,10 @@ export class ResourceEntity {
     return this.props.read;
   }
 
+  get estimatedReadingTime() {
+    return this.props.estimatedReadingTime;
+  }
+
   set name(name: string) {
     this.props.name = name;
   }
@@ -58,5 +62,9 @@ export class ResourceEntity {
 
   set read(read: boolean) {
     this.props.read = read;
+  }
+
+  set estimatedReadingTime(minutes: number | undefined) {
+    this.props.estimatedReadingTime = minutes;
   }
 }

@@ -5,6 +5,7 @@ export interface ResourceProps {
   type: ResourceType;
   source: Source;
   read: boolean;
+  estimatedReadingTime?: number;
 }
 
 export interface CreateResourceProps {

@@ -20,6 +20,8 @@ export class ResourceModel {
   updatedAt: Date;
   @Column({ default: false })
   read: boolean;
+  @Column({ nullable: true })
+  estimatedReadingTime?: number;
 
   static fromEntity(entity: ResourceEntity): ResourceModel {
     const model = new ResourceModel();
@@ -31,6 +33,7 @@ export class ResourceModel {
     model.createdAt = entity.createdAt;
     model.updatedAt = new Date();
     model.read = entity.read;
+    model.estimatedReadingTime = entity.estimatedReadingTime;
     return model;
   }
 
@@ -45,6 +48,7 @@ export class ResourceModel {
       },
       createdAt: this.createdAt,
       read: this.read,
+      estimatedReadingTime: this.estimatedReadingTime,
     });
   }
 }
