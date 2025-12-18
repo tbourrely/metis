@@ -10,6 +10,7 @@ import { Inject } from '@nestjs/common';
 import { QueryHandler } from '@nestjs/cqrs';
 import { JSDOM } from 'jsdom';
 import { Result, Err, Ok } from 'oxide.ts';
+import puppeteer from 'puppeteer';
 
 export class ReaderModeQuery {
   constructor(readonly resourceId: string) {}
@@ -37,17 +38,18 @@ export class ReaderModeQueryHandler {
 
     const url = resource.source.url;
 
-    // maybe a gateway could be used here, but it seems unnecessary for now, KISS :)
-    const content = await fetch(url, {
-      headers: {
-        // set a user-agent to avoid being blocked by some websites
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-      },
-    });
-    const text = await content.text();
-    const { window } = new JSDOM(text, { url });
-    const article = new Readability(window.document).parse();
-    return Ok(article?.content || '');
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(url, { waitUntil: 'networkidle2' });
+      const html = await page.content();
+      await browser.close();
+      const { window } = new JSDOM(html, { url });
+      const article = new Readability(window.document).parse();
+      return Ok(article?.content || '');
+    } catch (error) {
+      console.error('Error fetching page content', error);
+      return Err(new Error('Failed to fetch page content'));
+    }
   }
 }

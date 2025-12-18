@@ -86,7 +86,7 @@ describe('ResourceGateway', () => {
     'https://longform.asmartbear.com/impostor-syndrome/',
     'https://longform.asmartbear.com/investment/',
     'https://longform.asmartbear.com/focus/',
-    // 'https://queue.acm.org/detail.cfm?id=3454124', // Currently fails due to Cloudflare protection
+    'https://queue.acm.org/detail.cfm?id=3454124',
     'https://www.uber.com/en-FR/blog/mysql-at-uber/',
   ])('should extract information from: %s', async (url) => {
     const gw = new ResourceGateway();

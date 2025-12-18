@@ -80,4 +80,24 @@ describe('ReaderModeQueryHandler', () => {
   // TODO
   it.todo('should handle fetch errors');
   it.todo('should handle parse errors');
+
+  // Test for a known problematic URL
+  it('should parse a problematic URL correctly', async () => {
+    jest.spyOn(repository, 'findById').mockResolvedValue(
+      ResourceEntity.create({
+        name: 'medium-article',
+        type: ResourceType.TEXT,
+        source: {
+          url: 'https://jimmyhmiller.com/overly-humble-programmer',
+          name: 'medium-article',
+        },
+      }),
+    );
+
+    const result = await handler.execute(
+      new ReaderModeQuery('medium-article-id'),
+    );
+    expect(result.isOk()).toBe(true);
+    expect(result.unwrap()).not.toBe('');
+  });
 });

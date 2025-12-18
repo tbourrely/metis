@@ -2,9 +2,10 @@ import { Err, Ok, Result } from 'oxide.ts';
 import { ResourceType } from '../domain/resource.types';
 import { JSDOM } from 'jsdom';
 import { ResourceEntity } from '../domain/resource.entity';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { Readability } from '@mozilla/readability';
+import puppeteer from 'puppeteer';
 
 export type ResourceGetResult = {
   name: string;
@@ -14,69 +15,138 @@ export type ResourceGetResult = {
 
 export const defaultResourceName = 'Untitled Document';
 
+type FetchResult = {
+  headers: Record<string, string>;
+  content: string;
+  status: number;
+};
+
 @Injectable()
 export class ResourceGateway {
-  async get(url: string): Promise<Result<ResourceEntity, Error>> {
+  /**
+   * Fetches a resource from the given URL using standard fetch API.
+   *
+   * @param url The URL of the resource to fetch.
+   * @returns A Result containing FetchResult on success or an Error on failure.
+   */
+  private async fetch(url: string): Promise<Result<FetchResult, Error>> {
     try {
-      const data = await fetch(url, {
-        // Set headers to mimic a real browser request
+      const result = await fetch(url, {
+        method: 'GET',
         headers: {
           'User-Agent':
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0',
-          Accept:
-            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Accept-Language': 'en-US,en;q=0.5',
-          Connection: 'keep-alive',
-          Host: new URL(url).hostname,
-          'Alt-Used': new URL(url).hostname,
-          Referer: 'https://www.google.com/',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Content-Type': 'text/html',
         },
       });
-      if (!data.ok) {
-        Logger.error(
-          `Failed to fetch resource from ${url}: ${data.status} ${data.statusText}`,
+      if (!result.ok) {
+        return Err(
+          new Error(`Failed to fetch resource from ${url}`, {
+            cause: result.statusText,
+          }),
         );
-        return Err(new Error(`Failed to fetch resource from ${url}`));
       }
-
-      const rawContent = await data.text();
-      const content = this.cleanHtmlContent(rawContent);
-
-      const type = this.extractTypeFromHeaders(data.headers);
-      if (type === ResourceType.UNKNOWN) {
-        return Err(new Error(`Unsupported resource type at ${url}`));
-      }
-
-      const name =
-        type === ResourceType.DOCUMENT
-          ? url.split('/').pop() // Use filename from URL for documents
-          : this.extractNameFromMetadata(content, url); // Extract from HTML metadata for text
-
-      const entity = ResourceEntity.create({
-        name: name || defaultResourceName,
-        type,
-        source: {
-          name: new URL(url).hostname,
-          url,
-        },
+      const headers: Record<string, string> = {};
+      result.headers.forEach((value, key) => {
+        headers[key.toLowerCase()] = value;
       });
+      const content = await result.text();
+      const status = result.status;
+      return Ok({ headers, content, status });
+    } catch (error) {
+      return Err(new Error(`Fetch failed for ${url}: ${error}`));
+    }
+  }
 
-      // For text resources, we can also estimate reading time
-      // Documents like PDFs would require more complex parsing which is out of scope here for now
-      // TODO: Implement PDF text extraction
-      if (type === ResourceType.TEXT) {
-        const estimatedReadingTime = this.extractEstimatedReadingTime(
-          content,
-          url,
-        );
-        entity.estimatedReadingTime = estimatedReadingTime;
+  /**
+   * Fetches a resource from the given URL using Puppeteer.
+   *
+   * @param url The URL of the resource to fetch.
+   * @returns A Result containing FetchResult on success or an Error on failure.
+   */
+  private async fetchWithPuppeteer(
+    url: string,
+  ): Promise<Result<FetchResult, Error>> {
+    const browser = await puppeteer.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      const response = await page.goto(url, { waitUntil: 'networkidle2' });
+      if (!response) {
+        throw new Error('No response received');
       }
 
-      return Ok(entity);
+      const headers = response.headers();
+      const html = await page.content();
+      const status = response.status();
+      await browser.close();
+
+      return Ok({ headers, content: html, status });
     } catch (error) {
       return Err(new Error(`Failed to fetch resource from ${url}: ${error}`));
+    } finally {
+      await browser.close();
     }
+  }
+
+  /**
+   * Fetches and processes a resource from the given URL.
+   *
+   * @param url The URL of the resource to fetch.
+   * @returns A Result containing ResourceEntity on success or an Error on failure.
+   */
+  async get(url: string): Promise<Result<ResourceEntity, Error>> {
+    let contentFetchResult: FetchResult | null = null;
+
+    const fetchResult = await this.fetch(url);
+    if (fetchResult.isErr() || fetchResult.unwrap().status >= 400) {
+      // Fallback to Puppeteer if standard fetch fails
+      // this could be due to JS-rendered content or anti-bot measures
+      const puppeteerResult = await this.fetchWithPuppeteer(url);
+      if (puppeteerResult.isErr()) {
+        return Err(
+          new Error(
+            `Failed to fetch resource from ${url} using both fetch and Puppeteer.`,
+          ),
+        );
+      }
+
+      contentFetchResult = puppeteerResult.unwrap();
+    } else {
+      contentFetchResult = fetchResult.unwrap();
+    }
+
+    const { headers, content: html } = contentFetchResult;
+
+    const content = this.cleanHtmlContent(html);
+
+    const type = this.extractTypeFromHeaders(headers);
+    if (type === ResourceType.UNKNOWN) {
+      return Err(new Error(`Unsupported resource type at ${url}`));
+    }
+
+    const name =
+      type === ResourceType.DOCUMENT
+        ? url.split('/').pop() // Use filename from URL for documents
+        : this.extractNameFromMetadata(content, url); // Extract from HTML metadata for text
+
+    const entity = ResourceEntity.create({
+      name: name || defaultResourceName,
+      type,
+      source: {
+        name: new URL(url).hostname,
+        url,
+      },
+    });
+
+    // For text resources, we can also estimate reading time
+    // Documents like PDFs would require more complex parsing which is out of scope here for now
+    // TODO: Implement PDF text extraction
+    if (type === ResourceType.TEXT) {
+      entity.estimatedReadingTime = this.estimatedReadingTime(content, url);
+    }
+
+    return Ok(entity);
   }
 
   /**
@@ -99,13 +169,13 @@ export class ResourceGateway {
    * @param content The HTML content of the resource.
    * @returns Estimated reading time in minutes.
    */
-  extractEstimatedReadingTime(content: string, url: string): number {
+  estimatedReadingTime(content: string, url: string): number {
     const wordsPerMinute = 238; // Average reading speed, source: https://scholarwithin.com/average-reading-speed#spelling-ebook
 
     const { window } = new JSDOM(content, { url }); // TODO: extract DOM only once for both name and reading time
     const article = new Readability(window.document).parse();
     if (!article?.textContent) {
-      return 0;
+      return 0; // FIXME: use an error or null to indicate failure to estimate
     }
 
     const words = article?.textContent.split(/\s+/);
@@ -124,8 +194,8 @@ export class ResourceGateway {
     return title.textContent.trim();
   }
 
-  extractTypeFromHeaders(headers: Headers): ResourceType {
-    const contentType = headers.get('content-type');
+  extractTypeFromHeaders(headers: Record<string, string>): ResourceType {
+    const contentType = headers['content-type'];
     if (!contentType) {
       return ResourceType.UNKNOWN;
     }
