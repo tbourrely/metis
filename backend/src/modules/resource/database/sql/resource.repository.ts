@@ -47,6 +47,17 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     return models.map((model) => model.toEntity());
   }
 
+  async findPaginated(
+    offset: number,
+    limit: number,
+  ): Promise<{ items: ResourceEntity[]; total: number }> {
+    const [models, total] = await this.repository.findAndCount({
+      skip: offset,
+      take: limit,
+    });
+    return { items: models.map((m) => m.toEntity()), total };
+  }
+
   async update(resource: ResourceEntity): Promise<ResourceEntity> {
     const model = ResourceModel.fromEntity(resource);
     const updatedResource = await this.repository.save(model);

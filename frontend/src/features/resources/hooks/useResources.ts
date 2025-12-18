@@ -1,30 +1,53 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useDeleteResource from "./useDeleteResource";
 import useUpdateRead from "./useUpdateRead";
 import type { Resource } from "../types/resource";
 
-export default function useResources() {
+type PaginatedResponse = {
+  items: Resource[];
+  meta: {
+    total: number;
+    page: number;
+    perPage: number;
+    totalPages: number;
+  };
+};
+
+// FIXME: this hook does a lot !
+export default function useResources(
+  itemsPerPage: number = 20,
+  pageInit: number = 1,
+) {
   const [resources, setResources] = useState<Resource[]>([]);
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
+  const [page, setPage] = useState(pageInit);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const reloadArticles = async (signal?: AbortSignal) => {
-    try {
-      const res = await fetch("http://localhost:3000/v1/resources", { signal });
-      if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
-      const data = await res.json();
-      setResources(data);
-    } catch (err: unknown) {
-      if ((err as Error).name === "AbortError") return;
-      console.error(err);
-    }
-  };
+  const reloadArticles = useCallback(
+    async (signal?: AbortSignal) => {
+      try {
+        const url = new URL("http://localhost:3000/v1/resources");
+        url.searchParams.append("perPage", itemsPerPage.toString());
+        url.searchParams.append("page", page.toString());
+        const res = await fetch(url, { signal });
+        if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
+        const data: PaginatedResponse = await res.json();
+        setTotalPages(data.meta.totalPages);
+        setResources(data.items);
+      } catch (err: unknown) {
+        if ((err as Error).name === "AbortError") return;
+        console.error(err);
+      }
+    },
+    [itemsPerPage, page],
+  );
 
   useEffect(() => {
     const ac = new AbortController();
     reloadArticles(ac.signal);
     return () => ac.abort();
-  }, []);
+  }, [page, reloadArticles]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -48,5 +71,13 @@ export default function useResources() {
     }
   };
 
-  return { resources, handleDelete, handleToggleRead, reloadArticles };
+  return {
+    resources,
+    handleDelete,
+    handleToggleRead,
+    reloadArticles,
+    page,
+    setPage,
+    totalPages,
+  };
 }

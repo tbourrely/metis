@@ -4,7 +4,12 @@ import { ResourceEntity } from '@modules/resource/domain/resource.entity';
 import { Inject } from '@nestjs/common';
 import { QueryHandler } from '@nestjs/cqrs';
 
-export class GetAllQuery {}
+export class GetAllQuery {
+  constructor(
+    readonly page: number = 1,
+    readonly perPage: number = 20,
+  ) {}
+}
 
 @QueryHandler(GetAllQuery)
 export class GetAllQueryHandler {
@@ -13,7 +18,19 @@ export class GetAllQueryHandler {
     private readonly repository: ResourceRepositoryPort,
   ) {}
 
-  async execute(): Promise<ResourceEntity[]> {
-    return this.repository.find();
+  async execute(query: GetAllQuery): Promise<{
+    items: ResourceEntity[];
+    total: number;
+    page: number;
+    perPage: number;
+  }> {
+    const page = Math.max(1, Math.floor(query.page));
+    const perPage = Math.max(1, Math.min(100, Math.floor(query.perPage)));
+    const offset = (page - 1) * perPage;
+    const { items, total } = await this.repository.findPaginated(
+      offset,
+      perPage,
+    );
+    return { items, total, page, perPage };
   }
 }
