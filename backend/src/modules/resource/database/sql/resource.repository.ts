@@ -42,11 +42,6 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     return (result.affected || 0) > 0;
   }
 
-  async find(): Promise<ResourceEntity[]> {
-    const models = await this.repository.find();
-    return models.map((model) => model.toEntity());
-  }
-
   async findPaginated(
     offset: number,
     limit: number,
@@ -54,6 +49,7 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     const [models, total] = await this.repository.findAndCount({
       skip: offset,
       take: limit,
+      order: { createdAt: 'DESC' },
     });
     return { items: models.map((m) => m.toEntity()), total };
   }

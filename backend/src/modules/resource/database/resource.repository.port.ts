@@ -5,7 +5,6 @@ export interface ResourceRepositoryPort {
   delete(resource: ResourceEntity): Promise<boolean>;
   findById(id: string): Promise<ResourceEntity | null>;
   findByName(name: string): Promise<ResourceEntity | null>;
-  find(): Promise<ResourceEntity[]>;
   findPaginated(
     offset: number,
     limit: number,
