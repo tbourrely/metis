@@ -24,7 +24,7 @@ export default function useResources(
   const [page, setPage] = useState(pageInit);
   const [totalPages, setTotalPages] = useState(0);
 
-  const reloadArticles = useCallback(
+  const reloadResources = useCallback(
     async (signal?: AbortSignal) => {
       try {
         const url = new URL("http://localhost:3000/v1/resources");
@@ -45,9 +45,9 @@ export default function useResources(
 
   useEffect(() => {
     const ac = new AbortController();
-    reloadArticles(ac.signal);
+    reloadResources(ac.signal);
     return () => ac.abort();
-  }, [page, reloadArticles]);
+  }, [page, reloadResources]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -75,7 +75,7 @@ export default function useResources(
     resources,
     handleDelete,
     handleToggleRead,
-    reloadArticles,
+    reloadResources,
     page,
     setPage,
     totalPages,

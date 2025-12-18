@@ -5,7 +5,7 @@ import ResourcesHeader from '../features/resources/components/ResourcesHeader'
 import useResources from '../features/resources/hooks/useResources'
 
 function Home() {
-  const { resources, handleDelete, handleToggleRead, reloadArticles, page, setPage, totalPages } = useResources();
+  const { resources, handleDelete, handleToggleRead, reloadResources, page, setPage, totalPages } = useResources();
   const [hideRead, setHideRead] = useHideRead(true)
 
   return (
@@ -13,7 +13,7 @@ function Home() {
       <Sidebar />
 
       <main className="flex-1 p-6">
-        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadArticles} />
+        <ResourcesHeader hideRead={hideRead} setHideRead={setHideRead} onCreated={reloadResources} />
 
         <ResourcesGrid resources={hideRead ? resources.filter((a) => !a.read) : resources} onDelete={handleDelete} onToggleRead={handleToggleRead} />
 
