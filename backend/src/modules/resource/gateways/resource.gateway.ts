@@ -19,10 +19,18 @@ export class ResourceGateway {
   async get(url: string): Promise<Result<ResourceEntity, Error>> {
     try {
       const data = await fetch(url, {
+        // Set headers to mimic a real browser request
         headers: {
-          // set a user-agent to avoid being blocked by some websites
           'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:144.0) Gecko/20100101 Firefox/144.0',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'en-US,en;q=0.5',
+          Connection: 'keep-alive',
+          Host: new URL(url).hostname,
+          'Alt-Used': new URL(url).hostname,
+          Referer: 'https://www.google.com/',
         },
       });
       if (!data.ok) {
@@ -32,7 +40,8 @@ export class ResourceGateway {
         return Err(new Error(`Failed to fetch resource from ${url}`));
       }
 
-      const content = await data.text();
+      const rawContent = await data.text();
+      const content = this.cleanHtmlContent(rawContent);
 
       const type = this.extractTypeFromHeaders(data.headers);
       if (type === ResourceType.UNKNOWN) {
@@ -42,7 +51,7 @@ export class ResourceGateway {
       const name =
         type === ResourceType.DOCUMENT
           ? url.split('/').pop() // Use filename from URL for documents
-          : this.extractNameFromMetadata(content); // Extract from HTML metadata for text
+          : this.extractNameFromMetadata(content, url); // Extract from HTML metadata for text
 
       const entity = ResourceEntity.create({
         name: name || defaultResourceName,
@@ -57,7 +66,10 @@ export class ResourceGateway {
       // Documents like PDFs would require more complex parsing which is out of scope here for now
       // TODO: Implement PDF text extraction
       if (type === ResourceType.TEXT) {
-        const estimatedReadingTime = this.extractEstimatedReadingTime(content);
+        const estimatedReadingTime = this.extractEstimatedReadingTime(
+          content,
+          url,
+        );
         entity.estimatedReadingTime = estimatedReadingTime;
       }
 
@@ -68,6 +80,18 @@ export class ResourceGateway {
   }
 
   /**
+   * Cleans HTML content by removing potentially problematic tags.
+   *
+   * @param content The raw HTML content.
+   * @returns Cleaned HTML content.
+   */
+  cleanHtmlContent(content: string): string {
+    return content
+      .replace(/<script[\s\S]*?<\/script>/gi, '') // Remove script tags to avoid parsing issues
+      .replace(/<style[\s\S]*?<\/style>/gi, ''); // Remove style tags to avoid parsing issues
+  }
+
+  /**
    * Estimates reading time in minutes based on word count.
    *
    * It relies on Mozilla's Readability library to extract the main content from HTML.
@@ -75,9 +99,10 @@ export class ResourceGateway {
    * @param content The HTML content of the resource.
    * @returns Estimated reading time in minutes.
    */
-  extractEstimatedReadingTime(content: string): number {
+  extractEstimatedReadingTime(content: string, url: string): number {
     const wordsPerMinute = 238; // Average reading speed, source: https://scholarwithin.com/average-reading-speed#spelling-ebook
-    const { window } = new JSDOM(content); // TODO: extract DOM only once for both name and reading time
+
+    const { window } = new JSDOM(content, { url }); // TODO: extract DOM only once for both name and reading time
     const article = new Readability(window.document).parse();
     if (!article?.textContent) {
       return 0;
@@ -88,9 +113,11 @@ export class ResourceGateway {
     return Math.ceil(wordsCount / wordsPerMinute);
   }
 
-  extractNameFromMetadata(content: string): string | null {
-    const dom = new JSDOM(content);
-    const title = dom.window.document.querySelector('head title');
+  extractNameFromMetadata(content: string, url: string): string | null {
+    const { window } = new JSDOM(content, {
+      url,
+    });
+    const title = window.document.querySelector('head title');
     if (!title || !title.textContent) {
       return null;
     }

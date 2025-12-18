@@ -78,4 +78,27 @@ describe('ResourceGateway', () => {
     expect(error).toBeInstanceOf(Error);
     expect(error.message).toContain('Unsupported resource type at');
   });
+
+  // Additional tests for other URLs that have caused issues in the past
+  // this helps ensure robustness against a variety of real-world content
+  // and adapt gateway HTTP calls.
+  it.each([
+    'https://longform.asmartbear.com/impostor-syndrome/',
+    'https://longform.asmartbear.com/investment/',
+    'https://longform.asmartbear.com/focus/',
+    // 'https://queue.acm.org/detail.cfm?id=3454124', // Currently fails due to Cloudflare protection
+    'https://www.uber.com/en-FR/blog/mysql-at-uber/',
+  ])('should extract information from: %s', async (url) => {
+    const gw = new ResourceGateway();
+
+    const resourceDetails = await gw.get(url);
+
+    expect(resourceDetails.isOk()).toBe(true);
+    const content = resourceDetails.unwrap();
+    expect(content.source.url).toBe(url);
+    expect(content.source.name).not.toHaveLength(0);
+    expect(content.name).not.toHaveLength(0);
+    expect(content.type).toBe(ResourceType.TEXT);
+    expect(content.estimatedReadingTime).toBeDefined();
+  });
 });
