@@ -1,3 +1,4 @@
+import { useRouter } from '@tanstack/react-router';
 import type { Resource } from '../../types/resource'
 
 type Props = {
@@ -6,9 +7,11 @@ type Props = {
 }
 
 export default function ResourceHeader({ resource, read }: Props) {
+  const router = useRouter();
+
   return (
     <header className="mb-4">
-      <a href="/" className="text-blue-600 hover:underline inline-block mb-2">← Back</a>
+      <button onClick={() => router.history.back()} className="text-blue-600 hover:underline inline-block mb-2">← Back</button>
 
       <div>
         <h1 className="text-2xl font-bold mt-0 flex items-center gap-2">
@@ -18,6 +21,6 @@ export default function ResourceHeader({ resource, read }: Props) {
         <p className="text-sm text-gray-600 mt-1">By {resource.source.name} {resource.estimatedReadingTime && (`- ${resource.estimatedReadingTime} min read`)}</p>
         <a href={resource.source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm mt-1 inline-block">Original resource</a>
       </div>
-    </header>
+    </header >
   )
 }
