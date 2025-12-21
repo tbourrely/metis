@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 export default function useHideRead(initial = true) {
   const [hideRead, setHideRead] = useState<boolean>(() => {
     try {
-      const v = localStorage.getItem('hideRead')
-      return v == null ? initial : v === 'true'
+      const v = localStorage.getItem("hideRead");
+      return v == null ? initial : v === "true";
     } catch {
-      return initial
+      return initial;
     }
-  })
+  });
 
   useEffect(() => {
     try {
-      localStorage.setItem('hideRead', String(hideRead))
+      localStorage.setItem("hideRead", String(hideRead));
     } catch {
       // ignore
     }
-  }, [hideRead])
+  }, [hideRead]);
 
-  return [hideRead, setHideRead] as const
+  return [hideRead, setHideRead] as const;
 }

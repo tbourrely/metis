@@ -12,7 +12,7 @@ type FloatingActionsProps = {
 
 export default function FloatingActions({ read, onToggleRead, onDelete, onToggleFullScreen }: FloatingActionsProps) {
   return (
-    <div className="fixed right-6 top-1/3 z-50 flex flex-col gap-2">
+    <div className="fixed right-6 top-1/2 z-50 flex flex-col gap-2">
 
       {onToggleFullScreen && (
         <button
