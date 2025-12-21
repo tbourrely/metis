@@ -18,9 +18,7 @@ export default function useResource() {
     createdAt: new Date().toISOString(),
     read: false,
   }); // TODO: do not default to dummy
-  const [content, setContent] = useState<string>(
-    "<p>No content available.</p>",
-  );
+  const [content, setContent] = useState<string | null>(null);
   const [read, setRead] = useState(false);
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
@@ -29,7 +27,7 @@ export default function useResource() {
   useEffect(() => {
     if (!id) return;
     const ac = new AbortController();
-    const base = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3000';
+    const base = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3000";
 
     // fetch article details
     fetch(`${base}/v1/resources/${encodeURIComponent(id)}`, {
@@ -51,10 +49,9 @@ export default function useResource() {
 
           // fetch reader-mode content only for text articles
           if (resolvedArticle.type === "text") {
-            fetch(
-              `${base}/v1/resources/${encodeURIComponent(id)}/readermode`,
-              { signal: ac.signal },
-            )
+            fetch(`${base}/v1/resources/${encodeURIComponent(id)}/readermode`, {
+              signal: ac.signal,
+            })
               .then((r) => {
                 if (!r.ok) return null;
                 return r.text();

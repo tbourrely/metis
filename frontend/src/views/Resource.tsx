@@ -32,7 +32,15 @@ export default function ResourceView() {
     <div className="p-6 max-w-3xl mx-auto min-h-screen flex flex-col">
       <ResourceHeader resource={resource} read={read} />
 
-      {resource.type == 'text' && (<ResourceContentHtml html={content} read={read} />)}
+      {!content && resource.type === 'text' && (
+        <div className="mt-4">
+          {Array.from({ length: 10 }).map((_, idx) => (
+            <div key={idx} className="animate-pulse h-3 rounded bg-gray-200 mb-2"></div>
+          ))}
+        </div>
+      )}
+
+      {content && resource.type === 'text' && (<ResourceContentHtml html={content} read={read} />)}
 
       {!isIos && isPdfDocument && (
         <ResourcePdfViewer url={resource.source.url} isFullScreen={isFullScreen} />
