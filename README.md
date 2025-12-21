@@ -20,6 +20,18 @@ Metis is a web application designed to facilitate technology watch and keeping u
 
 WIP - Under active development
 
+## Setup
+
+1. Clone the repository.
+
+2. Create a `.env` file in the root directory and configure the necessary environment variables (see __.env.tpl__).
+
+3. Start the application using Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
 ## Inspirations
 
 * [pocket](https://getpocket.com/): For saving and organizing articles.
