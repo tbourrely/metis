@@ -11,7 +11,7 @@ export default function ResourceHeader({ resource, read }: Props) {
 
   return (
     <header className="mb-4">
-      <button onClick={() => router.history.back()} className="text-blue-600 hover:underline inline-block mb-2">← Back</button>
+      <button onClick={() => router.history.back()} className="text-blue-600 hover:underline hover:cursor-pointer inline-block mb-2">← Back</button>
 
       <div>
         <h1 className="text-2xl font-bold mt-0 flex items-center gap-2">
