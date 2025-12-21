@@ -2,6 +2,8 @@ version: "3.8"
 
 services:
   db:
+    networks:
+      - default
     image: postgres:15
     restart: unless-stopped
     environment:
@@ -11,15 +13,19 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "${DB_HOST_PORT:-5432}:5432"
+      - "${DB_HOST_PORT:-5432}:${DB_HOST_PORT:-5432}"
     healthcheck:
       test:
-        ["CMD-SHELL", "pg_isready -U ${DB_USER:-metis} -d ${DB_NAME:-metis_db}"]
+        ["CMD-SHELL", "pg_isready -U ${DB_USER:-metis} -d ${DB_NAME:-metis_db} -p ${DB_HOST_PORT:-5432}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: "-p ${DB_HOST_PORT:-5432}"
 
   backend:
+    privileged: true # kind of hacky but it seems necessary to be able to run chromium-browser for now, FIXME: better manage chromium within backend container
+    networks:
+      - default
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -31,26 +37,46 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-metis_pass}
       DB_NAME: ${DB_NAME:-metis_db}
       NODE_ENV: production
+      PORT: "${BACKEND_HOST_PORT:-3000}"
     ports:
-      - "${BACKEND_HOST_PORT:-3000}:3000"
+      - "${BACKEND_HOST_PORT:-3000}:${BACKEND_HOST_PORT:-3000}"
     depends_on:
       db:
         condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.metis-backend-router.rule=Host(`metis-backend.$DOMAIN`)
+      - traefik.http.routers.metis-backend-router.service=metis-backend-service
+      - traefik.http.services.metis-backend-service.loadbalancer.server.port=$BACKEND_HOST_PORT
 
   frontend:
+    networks:
+      - default
     image: node:24-alpine
     restart: unless-stopped
     working_dir: /app
     volumes:
       - ./frontend:/app:cached
       - /app/node_modules
-    command: sh -c "npm ci && npm run build && npm run preview -- --host 0.0.0.0 --port 5173"
+    command: sh -c "npm ci && npm run build && npm run preview -- --host 0.0.0.0 --port ${FRONTEND_HOST_PORT:-5173}"
     ports:
-      - "${FRONTEND_HOST_PORT:-5173}:5173"
+      - "${FRONTEND_HOST_PORT:-5173}:${FRONTEND_HOST_PORT:-5173}"
     environment:
       VITE_BACKEND_URL: "http://${BACKEND_HOST:-localhost}:${BACKEND_HOST_PORT:-3000}"
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: ".$DOMAIN"
     depends_on:
       - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.metis-ui-router.rule=Host(`metis.$DOMAIN`)
+      - traefik.http.routers.metis-ui-router.service=metis-ui-service
+      - traefik.http.services.metis-ui-service.loadbalancer.server.port=$FRONTEND_HOST_PORT
 
 volumes:
   db_data:
+
+# this is the default network i use on my homelab
+networks:
+  default:
+    name: "gateway"
+    external: true
