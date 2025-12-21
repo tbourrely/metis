@@ -46,17 +46,24 @@ export class SqlResourceRepository implements ResourceRepositoryPort {
     offset: number,
     limit: number,
     nameFilter?: string,
+    hideRead: boolean = false,
   ): Promise<{ items: ResourceEntity[]; total: number }> {
+    let readFilter = {};
+    if (hideRead) {
+      readFilter = { read: false };
+    }
+
+    // TODO: improve where clause
     const [models, total] = await this.repository.findAndCount({
       skip: offset,
       take: limit,
       order: { createdAt: 'DESC' },
       where: nameFilter
         ? [
-            { name: ILike(`%${nameFilter}%`) },
-            { sourceName: ILike(`%${nameFilter}%`) },
+            { name: ILike(`%${nameFilter}%`), ...readFilter },
+            { sourceName: ILike(`%${nameFilter}%`), ...readFilter },
           ]
-        : {},
+        : { ...readFilter },
     });
     return { items: models.map((m) => m.toEntity()), total };
   }

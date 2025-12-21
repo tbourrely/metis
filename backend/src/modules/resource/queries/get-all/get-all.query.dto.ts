@@ -1,5 +1,5 @@
 import { IsOptional, IsInt, Min, Max } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ResourceDTO } from '@modules/resource/shared/dto';
 
@@ -39,6 +39,19 @@ export class PaginationQueryDTO {
   @IsOptional()
   @Type(() => String)
   name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Hide read resources',
+    default: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return undefined;
+  })
+  hideRead?: boolean;
 }
 
 export class PaginatedResultDTO {

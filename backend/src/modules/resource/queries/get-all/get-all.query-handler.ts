@@ -9,6 +9,7 @@ export class GetAllQuery {
     readonly page: number = 1,
     readonly perPage: number = 20,
     readonly name?: string,
+    readonly hideRead?: boolean,
   ) {}
 }
 
@@ -32,6 +33,7 @@ export class GetAllQueryHandler {
       offset,
       perPage,
       query.name,
+      query.hideRead,
     );
     return { items, total, page, perPage };
   }

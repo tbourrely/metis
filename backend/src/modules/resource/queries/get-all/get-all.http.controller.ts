@@ -23,7 +23,7 @@ export class GetAllHttpController {
   ): Promise<PaginatedResultDTO> {
     const p = params?.page ?? 1;
     const pp = params?.perPage ?? 20;
-    const query = new GetAllQuery(p, pp, params?.name);
+    const query = new GetAllQuery(p, pp, params?.name, params?.hideRead);
     const result: {
       items: ResourceEntity[];
       total: number;

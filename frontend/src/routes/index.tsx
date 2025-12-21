@@ -5,7 +5,7 @@ import { z } from 'zod';
 export const Route = createFileRoute('/')({
   component: Index,
   validateSearch: z.object({
-    page: z.number().default(1),
+    page: z.number().int().min(1).catch(1).default(1),
     search: z.string().default(''),
     hideRead: z.boolean().default(false),
   }),

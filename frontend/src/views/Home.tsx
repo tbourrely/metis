@@ -3,21 +3,18 @@ import ResourcesGrid from '../features/resources/components/ResourcesGrid'
 import ResourcesHeader from '../features/resources/components/ResourcesHeader'
 import useResources from '../features/resources/hooks/useResources'
 import { Route } from '../routes'
-import { useEffect } from 'react'
+
+function NavigationBtn({ onClick, children, disabled, className }: { onClick: () => void; children: React.ReactNode, disabled: boolean, className?: string }) {
+  return (
+    <button disabled={disabled} className={`mt-6 px-4 py-2 text-white rounded ${disabled ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 hover:cursor-pointer'} ${className}`} onClick={onClick}>
+      {children}
+    </button>
+  )
+}
 
 function Home() {
   const { page, search, hideRead } = Route.useSearch();
-
-  const { resources, handleDelete, handleToggleRead, reloadResources, totalPages, setNameFilter, setPage } = useResources(20, page);
-
-  useEffect(() => {
-    setNameFilter(search);
-  }, [search, setNameFilter]);
-
-  useEffect(() => {
-    setPage(page);
-  }, [page, setPage]);
-
+  const { resources, handleDelete, handleToggleRead, reloadResources, totalPages } = useResources(undefined, page, search, hideRead);
   const navigate = Route.useNavigate();
 
   return (
@@ -27,37 +24,24 @@ function Home() {
       <main className="flex-1 p-6">
         <ResourcesHeader onCreated={reloadResources} />
 
-        <ResourcesGrid resources={hideRead ? resources.filter((a) => !a.read) : resources} onDelete={handleDelete} onToggleRead={handleToggleRead} />
+        <ResourcesGrid resources={resources} onDelete={handleDelete} onToggleRead={handleToggleRead} />
 
-        <div>
-          {
-            page > 1 &&
-            (
-              <button
-                className="mt-6 mr-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={() => navigate({
-                  search: (prev) => ({
-                    page: prev.page - 1
-                  })
-                })}
-              >
-                Previous page
-              </button>
-            )}
-          {
-            page < totalPages &&
-            (
-              <button
-                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={() => navigate({
-                  search: (prev) => ({
-                    page: prev.page + 1
-                  })
-                })}
-              >
-                Next page
-              </button>
-            )}
+        <div className="flex">
+          <NavigationBtn disabled={page <= 1} onClick={() => navigate({
+            search: (prev) => ({
+              page: prev.page - 1
+            })
+          })}>
+            Previous page
+          </NavigationBtn>
+
+          <NavigationBtn className='ml-4' disabled={page >= totalPages} onClick={() => navigate({
+            search: (prev) => ({
+              page: prev.page + 1
+            })
+          })}>
+            Next page
+          </NavigationBtn>
         </div>
       </main >
     </div >

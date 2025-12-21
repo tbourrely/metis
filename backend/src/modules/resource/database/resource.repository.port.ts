@@ -9,6 +9,7 @@ export interface ResourceRepositoryPort {
     offset: number,
     limit: number,
     nameFilter?: string,
+    hideRead?: boolean,
   ): Promise<{ items: ResourceEntity[]; total: number }>;
   update(resource: ResourceEntity): Promise<ResourceEntity>;
 }
