@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UploadJsonRouteImport } from './routes/upload-json'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResourcesResourceIdRouteImport } from './routes/resources/$resourceId'
 
+const UploadJsonRoute = UploadJsonRouteImport.update({
+  id: '/upload-json',
+  path: '/upload-json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -25,32 +31,43 @@ const ResourcesResourceIdRoute = ResourcesResourceIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/resources/$resourceId'
+  fullPaths: '/' | '/upload-json' | '/resources/$resourceId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/resources/$resourceId'
-  id: '__root__' | '/' | '/resources/$resourceId'
+  to: '/' | '/upload-json' | '/resources/$resourceId'
+  id: '__root__' | '/' | '/upload-json' | '/resources/$resourceId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  UploadJsonRoute: typeof UploadJsonRoute
   ResourcesResourceIdRoute: typeof ResourcesResourceIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/upload-json': {
+      id: '/upload-json'
+      path: '/upload-json'
+      fullPath: '/upload-json'
+      preLoaderRoute: typeof UploadJsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  UploadJsonRoute: UploadJsonRoute,
   ResourcesResourceIdRoute: ResourcesResourceIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -7,6 +7,9 @@ export default function Sidebar() {
           <li>
             <a href="/" className="text-blue-600 hover:underline">Resources</a>
           </li>
+          <li>
+            <a href="/upload-json" className="text-blue-600 hover:underline">Upload JSON</a>
+          </li>
         </ul>
       </nav>
     </aside>

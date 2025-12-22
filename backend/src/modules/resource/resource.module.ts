@@ -17,6 +17,8 @@ import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler
 import { UpdateHttpController } from './commands/update/update.http.controller';
 import { UpdateService } from './commands/update/update.service';
 import { ResourceGateway } from './gateways/resource.gateway';
+import { ImportHttpController } from './commands/import/import.http.controller';
+import { ImportService } from './commands/import/import.service';
 
 @Module({
   controllers: [
@@ -26,6 +28,7 @@ import { ResourceGateway } from './gateways/resource.gateway';
     ReaderModeHttpController,
     GetByIdHttpController,
     UpdateHttpController,
+    ImportHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -43,6 +46,7 @@ import { ResourceGateway } from './gateways/resource.gateway';
     GetAllQueryHandler,
     ReaderModeQueryHandler,
     GetByIdQueryHandler,
+    ImportService,
   ],
 })
 export class ResourceModule {}
