@@ -4,9 +4,9 @@ import ResourcesHeader from '../features/resources/components/ResourcesHeader'
 import useResources from '../features/resources/hooks/useResources'
 import { Route } from '../routes'
 
-function NavigationBtn({ onClick, children, disabled, className }: { onClick: () => void; children: React.ReactNode, disabled: boolean, className?: string }) {
+function NavigationBtn({ onClick, children, disabled }: { onClick: () => void; children: React.ReactNode, disabled: boolean }) {
   return (
-    <button disabled={disabled} className={`mt-6 px-4 py-2 text-white rounded ${disabled ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 hover:cursor-pointer'} ${className}`} onClick={onClick}>
+    <button disabled={disabled} className={`px-4 py-2 text-white rounded ${disabled ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 hover:cursor-pointer'}`} onClick={onClick}>
       {children}
     </button>
   )
@@ -26,7 +26,7 @@ function Home() {
 
         <ResourcesGrid resources={resources} onDelete={handleDelete} onToggleRead={handleToggleRead} />
 
-        <div className="flex">
+        <div className="flex flex-col sm:flex-row mt-6 gap-4">
           <NavigationBtn disabled={page <= 1} onClick={() => navigate({
             search: (prev) => ({
               page: prev.page - 1
@@ -35,7 +35,7 @@ function Home() {
             Previous page
           </NavigationBtn>
 
-          <NavigationBtn className='ml-4' disabled={page >= totalPages} onClick={() => navigate({
+          <NavigationBtn disabled={page >= totalPages} onClick={() => navigate({
             search: (prev) => ({
               page: prev.page + 1
             })
