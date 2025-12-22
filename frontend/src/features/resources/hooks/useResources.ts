@@ -24,6 +24,7 @@ export default function useResources(
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
   const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
 
   const reloadResources = useCallback(
     async (signal?: AbortSignal) => {
@@ -41,6 +42,7 @@ export default function useResources(
         if (!res.ok) throw new Error(`Failed to fetch articles: ${res.status}`);
         const data: PaginatedResponse = await res.json();
         setTotalPages(data.meta.totalPages);
+        setTotalItems(data.meta.total);
         setResources(data.items);
       } catch (err: unknown) {
         if ((err as Error).name === "AbortError") return;
@@ -84,5 +86,6 @@ export default function useResources(
     handleToggleRead,
     reloadResources,
     totalPages,
+    totalItems,
   };
 }

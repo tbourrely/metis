@@ -14,7 +14,7 @@ function NavigationBtn({ onClick, children, disabled, className }: { onClick: ()
 
 function Home() {
   const { page, search, hideRead } = Route.useSearch();
-  const { resources, handleDelete, handleToggleRead, reloadResources, totalPages } = useResources(undefined, page, search, hideRead);
+  const { resources, handleDelete, handleToggleRead, reloadResources, totalPages, totalItems } = useResources(undefined, page, search, hideRead);
   const navigate = Route.useNavigate();
 
   return (
@@ -42,6 +42,10 @@ function Home() {
           })}>
             Next page
           </NavigationBtn>
+
+          <p className="ml-auto self-center text-sm text-gray-600">
+            Page {page} of {totalPages} - {totalItems} items total
+          </p>
         </div>
       </main >
     </div >
