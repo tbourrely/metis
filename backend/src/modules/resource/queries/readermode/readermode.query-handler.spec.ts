@@ -30,22 +30,21 @@ describe('ReaderModeQueryHandler', () => {
   });
 
   it('should fetch reader mode content', async () => {
-    jest.spyOn(repository, 'findById').mockResolvedValue(
-      ResourceEntity.create({
-        name: 'example-resource',
-        type: ResourceType.TEXT,
-        source: {
-          url: 'https://martinfowler.com/bliki/Yagni.html',
-          name: 'yagni',
-        },
-      }),
-    );
+    const entity = ResourceEntity.create({
+      name: 'example-resource',
+      type: ResourceType.TEXT,
+      source: {
+        url: 'https://martinfowler.com/bliki/Yagni.html',
+        name: 'yagni',
+      },
+    });
+    entity.content = `<html><head><title>Yagni</title></head><body><article>Yagni originally is an acronym that stands for yet another...</article></body></html>`;
+
+    jest.spyOn(repository, 'findById').mockResolvedValue(entity);
 
     const result = await handler.execute(new ReaderModeQuery('example-id'));
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).toContain(
-      'Yagni originally is an acronym that stands for', // snippet from the article
-    );
+    expect(result.unwrap()).toBe(entity.content);
   });
 
   it('should return error if resource not found', async () => {
@@ -83,21 +82,22 @@ describe('ReaderModeQueryHandler', () => {
 
   // Test for a known problematic URL
   it('should parse a problematic URL correctly', async () => {
-    jest.spyOn(repository, 'findById').mockResolvedValue(
-      ResourceEntity.create({
+    const medium = ResourceEntity.create({
+      name: 'medium-article',
+      type: ResourceType.TEXT,
+      source: {
+        url: 'https://jimmyhmiller.com/overly-humble-programmer',
         name: 'medium-article',
-        type: ResourceType.TEXT,
-        source: {
-          url: 'https://jimmyhmiller.com/overly-humble-programmer',
-          name: 'medium-article',
-        },
-      }),
-    );
+      },
+    });
+    medium.content = `<html><head><title>Article</title></head><body><article>Some content</article></body></html>`;
+
+    jest.spyOn(repository, 'findById').mockResolvedValue(medium);
 
     const result = await handler.execute(
       new ReaderModeQuery('medium-article-id'),
     );
     expect(result.isOk()).toBe(true);
-    expect(result.unwrap()).not.toBe('');
+    expect(result.unwrap()).toBe(medium.content);
   });
 });

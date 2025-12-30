@@ -48,6 +48,14 @@ export class ResourceEntity {
     return this.props.estimatedReadingTime;
   }
 
+  get content(): string | undefined {
+    return this.props.content;
+  }
+
+  set content(content: string) {
+    this.props.content = content;
+  }
+
   set name(name: string) {
     this.props.name = name;
   }

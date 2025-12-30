@@ -5,12 +5,9 @@ import {
   UnsupportedActionError,
 } from '@modules/resource/domain/resource.errors';
 import { ResourceType } from '@modules/resource/domain/resource.types';
-import { Readability } from '@mozilla/readability';
 import { Inject } from '@nestjs/common';
 import { QueryHandler } from '@nestjs/cqrs';
-import { JSDOM } from 'jsdom';
 import { Result, Err, Ok } from 'oxide.ts';
-import puppeteer from 'puppeteer';
 
 export class ReaderModeQuery {
   constructor(readonly resourceId: string) {}
@@ -36,20 +33,16 @@ export class ReaderModeQueryHandler {
       return Err(new UnsupportedActionError('readermode'));
     }
 
-    const url = resource.source.url;
-
-    try {
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2' });
-      const html = await page.content();
-      await browser.close();
-      const { window } = new JSDOM(html, { url });
-      const article = new Readability(window.document).parse();
-      return Ok(article?.content || '');
-    } catch (error) {
-      console.error('Error fetching page content', error);
-      return Err(new Error('Failed to fetch page content'));
+    // Prefer stored content from the database to generate reader-mode view
+    if (!resource.content) {
+      return Err(
+        new Error(
+          `No stored content available for resource ${query.resourceId}`,
+        ),
+      );
     }
+
+    // Content is already stored and ready to be served; return it directly
+    return Ok(resource.content);
   }
 }

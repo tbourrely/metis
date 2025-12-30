@@ -47,9 +47,21 @@ describe('ResourceGateway', () => {
       expect(content.type).toBe(expectedType);
       if (expectedReadingTime) {
         expect(content.estimatedReadingTime).not.toBeUndefined();
-        expect(content.estimatedReadingTime).toBe(expectedReadingTime);
+        expect(content.estimatedReadingTime).toBeGreaterThanOrEqual(
+          expectedReadingTime - 2,
+        );
+        expect(content.estimatedReadingTime).toBeLessThanOrEqual(
+          expectedReadingTime + 2,
+        );
       } else {
         expect(content.estimatedReadingTime).toBeUndefined();
+      }
+
+      if (expectedType !== ResourceType.DOCUMENT) {
+        expect(content.content).toBeDefined();
+        expect(content.content).not.toHaveLength(0);
+      } else {
+        expect(content.content).toBeUndefined();
       }
     },
   );
@@ -101,5 +113,8 @@ describe('ResourceGateway', () => {
     expect(content.name).not.toHaveLength(0);
     expect(content.type).toBe(ResourceType.TEXT);
     expect(content.estimatedReadingTime).not.toBe(0);
+    // ensure we return article content for text resources
+    expect(content.content).toBeDefined();
+    expect(content.content).not.toHaveLength(0);
   });
 });

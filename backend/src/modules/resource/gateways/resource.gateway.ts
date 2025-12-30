@@ -143,18 +143,22 @@ export class ResourceGateway {
       return Ok(entity);
     }
 
+    let readerModeContent = this.toReaderMode(content, url).unwrapOr('');
+
     // For text resources, we can also estimate reading time
     // Documents like PDFs would require more complex parsing which is out of scope here for now
     //---
     // TODO: Implement PDF text extraction
-    const estimatedReadingTimeResult = this.estimatedReadingTime(content, url);
+    const estimatedReadingTimeResult =
+      this.estimatedReadingTime(readerModeContent);
     let estimed: number;
 
-    if (estimatedReadingTimeResult.isErr()) {
+    if (estimatedReadingTimeResult.isErr() || readerModeContent.trim() === '') {
       Logger.warn(
         `Failed to estimate reading time for resource at ${url}: ${estimatedReadingTimeResult.unwrapErr().message} - proceeding with puppeteer fallback.`,
       );
 
+      // TODO: see if this can be done earlier
       const fallback = await this.fetchWithPuppeteer(url);
       if (fallback.isErr()) {
         Logger.warn(
@@ -163,8 +167,18 @@ export class ResourceGateway {
         return Ok(entity); // return entity without reading time, better than failing entirely
       }
 
-      const fallbackContent = this.cleanHtmlContent(fallback.unwrap().content);
-      const fallbackEstimed = this.estimatedReadingTime(fallbackContent, url);
+      const fallbackContent = this.toReaderMode(
+        this.cleanHtmlContent(fallback.unwrap().content),
+        url,
+      );
+      if (fallbackContent.isErr()) {
+        Logger.warn(
+          `Could not extract reader mode content for resource at ${url} even after fallback: ${fallbackContent.unwrapErr().message}`,
+        );
+      }
+      readerModeContent = fallbackContent.unwrapOr('');
+
+      const fallbackEstimed = this.estimatedReadingTime(readerModeContent);
       if (fallbackEstimed.isErr()) {
         Logger.warn(
           `Could not estimate reading time for resource at ${url} even after fallback: ${fallbackEstimed.unwrapErr().message}`,
@@ -178,6 +192,7 @@ export class ResourceGateway {
     }
 
     entity.estimatedReadingTime = estimed;
+    entity.content = readerModeContent;
     return Ok(entity);
   }
 
@@ -194,6 +209,23 @@ export class ResourceGateway {
   }
 
   /**
+   * Converts HTML content to reader mode using Mozilla's Readability library.
+   *
+   * @param content The HTML content of the resource.
+   * @param url The URL of the resource (used for base URL resolution).
+   * @returns A Result containing the reader mode content on success or an Error on failure.
+   */
+  toReaderMode(content: string, url: string): Result<string, Error> {
+    console.debug(content);
+    const { window } = new JSDOM(content, { url });
+    const article = new Readability(window.document).parse();
+    if (!article?.content) {
+      return Err(new Error('Failed to parse article content for reader mode.'));
+    }
+    return Ok(article.content);
+  }
+
+  /**
    * Estimates reading time in minutes based on word count.
    *
    * It relies on Mozilla's Readability library to extract the main content from HTML.
@@ -201,19 +233,18 @@ export class ResourceGateway {
    * @param content The HTML content of the resource.
    * @returns Estimated reading time in minutes.
    */
-  estimatedReadingTime(content: string, url: string): Result<number, Error> {
+  estimatedReadingTime(content: string): Result<number, Error> {
     const wordsPerMinute = 238; // Average reading speed, source: https://scholarwithin.com/average-reading-speed#spelling-ebook
 
-    const { window } = new JSDOM(content, { url }); // TODO: extract DOM only once for both name and reading time
-    const article = new Readability(window.document).parse();
-    if (!article?.textContent) {
+    if (content.trim().length === 0) {
       return Err(
-        new Error('Failed to parse article content for reading time.'),
+        new Error(
+          'Failed to parse article content for reading time, given value is empty.',
+        ),
       );
     }
 
-    const words = article?.textContent.split(/\s+/);
-    const wordsCount = words.length;
+    const wordsCount = content.split(/\s+/).length;
     return Ok(Math.ceil(wordsCount / wordsPerMinute));
   }
 
