@@ -216,7 +216,6 @@ export class ResourceGateway {
    * @returns A Result containing the reader mode content on success or an Error on failure.
    */
   toReaderMode(content: string, url: string): Result<string, Error> {
-    console.debug(content);
     const { window } = new JSDOM(content, { url });
     const article = new Readability(window.document).parse();
     if (!article?.content) {

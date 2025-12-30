@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import useResource from '../features/resources/hooks/useResource'
+import useRefreshContent from '../features/resources/hooks/useRefreshContent'
+import useResourceContent from '../features/resources/hooks/useResourceContent'
 import ResourceHeader from '../features/resources/components/ResourceHeader'
 import ResourceContentHtml from '../features/resources/components/ResourceContentHtml'
 import FloatingActions from '../features/resources/components/FloatingActions'
@@ -18,7 +20,9 @@ function ResourcePdfViewer({ url, isFullScreen }: { url: string; isFullScreen: b
 }
 
 export default function ResourceView() {
-  const { resource, content, read, toggleRead, remove, loading } = useResource()
+  const { resource, content, read, toggleRead, remove, loading, setContent } = useResource()
+  const { refreshContent: triggerRefresh, loading: refreshLoading } = useRefreshContent()
+  const { fetchContent } = useResourceContent()
   const isIos = useIsIosDevice();
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -27,6 +31,16 @@ export default function ResourceView() {
   }
 
   const isPdfDocument = resource.type === 'document' && isPdf(resource.source.url);
+
+  const handleRefresh = async () => {
+    try {
+      await triggerRefresh(resource.id)
+      const newContent = await fetchContent(resource.id)
+      setContent(newContent)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto min-h-screen flex flex-col">
@@ -43,6 +57,11 @@ export default function ResourceView() {
       {!loading && !content && resource.type === 'text' && (
         <div className="mt-4">
           <p className="text-gray-600">No content available for this resource.</p>
+          <div className="mt-2">
+            <button onClick={handleRefresh} disabled={refreshLoading} className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">
+              {refreshLoading ? 'Refreshing...' : 'Refetch content'}
+            </button>
+          </div>
         </div>
       )}
 

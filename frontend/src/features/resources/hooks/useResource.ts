@@ -4,6 +4,8 @@ import useDeleteResource from "./useDeleteResource";
 import useUpdateRead from "./useUpdateRead";
 import type { Resource } from "../types/resource";
 
+// FIXME: this hook does a lot !
+
 // Hook to provide article data and actions (uses API)
 export default function useResource() {
   // extract article ID from URL path with tanstack-router
@@ -101,5 +103,14 @@ export default function useResource() {
     }
   };
 
-  return { id, resource, content, read, toggleRead, remove, loading };
+  return {
+    id,
+    resource,
+    content,
+    read,
+    toggleRead,
+    remove,
+    loading,
+    setContent,
+  };
 }

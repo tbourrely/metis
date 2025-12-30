@@ -16,6 +16,7 @@ export const routesV1: Routes = {
     delete: '/resources/:id',
     update: '/resources/:id',
     readermode: '/resources/:id/readermode',
+    refreshContent: '/resources/:id/refresh-content',
   },
   imports: {
     root: '/import',

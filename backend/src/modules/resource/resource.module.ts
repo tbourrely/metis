@@ -19,6 +19,8 @@ import { UpdateService } from './commands/update/update.service';
 import { ResourceGateway } from './gateways/resource.gateway';
 import { ImportHttpController } from './commands/import/import.http.controller';
 import { ImportService } from './commands/import/import.service';
+import { RefreshContentHttpController } from './commands/refresh-content/refresh-content.http.controller';
+import { RefreshContentService } from './commands/refresh-content/refresh-content.service';
 
 @Module({
   controllers: [
@@ -29,6 +31,7 @@ import { ImportService } from './commands/import/import.service';
     GetByIdHttpController,
     UpdateHttpController,
     ImportHttpController,
+    RefreshContentHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -47,6 +50,7 @@ import { ImportService } from './commands/import/import.service';
     ReaderModeQueryHandler,
     GetByIdQueryHandler,
     ImportService,
+    RefreshContentService,
   ],
 })
 export class ResourceModule {}
