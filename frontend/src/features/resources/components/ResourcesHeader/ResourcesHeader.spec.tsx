@@ -11,13 +11,18 @@ vi.mock('../../../../routes', () => ({
 
 import { render, screen, fireEvent } from '@testing-library/react'
 import ResourcesHeader from './ResourcesHeader'
+import { SidebarProvider } from '../../../../contexts/SidebarContext'
 
 describe('ResourcesHeader', () => {
   it('renders title, hide-read toggle and search input and forwards handlers', () => {
     const onCreated = vi.fn()
 
     navigateMock.mockClear()
-    render(<ResourcesHeader onCreated={onCreated} />)
+    render(
+      <SidebarProvider>
+        <ResourcesHeader onCreated={onCreated} />
+      </SidebarProvider>
+    )
 
     expect(screen.getByText('Resources')).toBeInTheDocument()
     expect(screen.getByText('Hide read resources')).toBeInTheDocument()
