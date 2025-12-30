@@ -18,7 +18,7 @@ function ResourcePdfViewer({ url, isFullScreen }: { url: string; isFullScreen: b
 }
 
 export default function ResourceView() {
-  const { resource, content, read, toggleRead, remove } = useResource()
+  const { resource, content, read, toggleRead, remove, loading } = useResource()
   const isIos = useIsIosDevice();
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -32,11 +32,17 @@ export default function ResourceView() {
     <div className="p-6 max-w-3xl mx-auto min-h-screen flex flex-col">
       <ResourceHeader resource={resource} read={read} />
 
-      {!content && resource.type === 'text' && (
+      {loading && resource.type === 'text' && (
         <div className="mt-4">
           {Array.from({ length: 10 }).map((_, idx) => (
             <div key={idx} className="animate-pulse h-3 rounded bg-gray-200 mb-2"></div>
           ))}
+        </div>
+      )}
+
+      {!loading && !content && resource.type === 'text' && (
+        <div className="mt-4">
+          <p className="text-gray-600">No content available for this resource.</p>
         </div>
       )}
 

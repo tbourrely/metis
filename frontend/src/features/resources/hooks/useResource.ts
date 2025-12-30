@@ -20,6 +20,7 @@ export default function useResource() {
   }); // TODO: do not default to dummy
   const [content, setContent] = useState<string | null>(null);
   const [read, setRead] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { deleteResource } = useDeleteResource();
   const { updateRead } = useUpdateRead();
   const navigate = useNavigate();
@@ -63,11 +64,17 @@ export default function useResource() {
               .catch((err: Error) => {
                 if (err.name === "AbortError") return;
                 console.error(err);
+              })
+              .finally(() => {
+                setLoading(false);
               });
           }
         }
+
+        setLoading(false);
       })
       .catch((err: Error) => {
+        setLoading(false);
         if (err.name === "AbortError") return;
         console.error(err);
       });
@@ -94,5 +101,5 @@ export default function useResource() {
     }
   };
 
-  return { id, resource, content, read, toggleRead, remove };
+  return { id, resource, content, read, toggleRead, remove, loading };
 }
