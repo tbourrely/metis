@@ -14,6 +14,8 @@ import { ReaderModeHttpController } from './queries/readermode/readermode.http.c
 import { ReaderModeQueryHandler } from './queries/readermode/readermode.query-handler';
 import { GetByIdHttpController } from './queries/get-by-id/get-by-id.http.controller';
 import { GetByIdQueryHandler } from './queries/get-by-id/get-by-id.query-handler';
+import { GetSourcesHttpController } from './queries/get-sources/get-sources.http.controller';
+import { GetSourcesQueryHandler } from './queries/get-sources/get-sources.query-handler';
 import { UpdateHttpController } from './commands/update/update.http.controller';
 import { UpdateService } from './commands/update/update.service';
 import { ResourceGateway } from './gateways/resource.gateway';
@@ -32,6 +34,7 @@ import { RefreshContentService } from './commands/refresh-content/refresh-conten
     UpdateHttpController,
     ImportHttpController,
     RefreshContentHttpController,
+    GetSourcesHttpController,
   ],
   imports: [CqrsModule, TypeOrmModule.forFeature([ResourceModel])],
   providers: [
@@ -49,6 +52,7 @@ import { RefreshContentService } from './commands/refresh-content/refresh-conten
     GetAllQueryHandler,
     ReaderModeQueryHandler,
     GetByIdQueryHandler,
+    GetSourcesQueryHandler,
     ImportService,
     RefreshContentService,
   ],

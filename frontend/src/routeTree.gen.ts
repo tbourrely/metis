@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadJsonRouteImport } from './routes/upload-json'
+import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ResourcesResourceIdRouteImport } from './routes/resources/$resourceId'
 
 const UploadJsonRoute = UploadJsonRouteImport.update({
   id: '/upload-json',
   path: '/upload-json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SourcesRoute = SourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const ResourcesResourceIdRoute = ResourcesResourceIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/sources': typeof SourcesRoute
   '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sources': typeof SourcesRoute
   '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/sources': typeof SourcesRoute
   '/upload-json': typeof UploadJsonRoute
   '/resources/$resourceId': typeof ResourcesResourceIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upload-json' | '/resources/$resourceId'
+  fullPaths: '/' | '/sources' | '/upload-json' | '/resources/$resourceId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upload-json' | '/resources/$resourceId'
-  id: '__root__' | '/' | '/upload-json' | '/resources/$resourceId'
+  to: '/' | '/sources' | '/upload-json' | '/resources/$resourceId'
+  id: '__root__' | '/' | '/sources' | '/upload-json' | '/resources/$resourceId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SourcesRoute: typeof SourcesRoute
   UploadJsonRoute: typeof UploadJsonRoute
   ResourcesResourceIdRoute: typeof ResourcesResourceIdRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/upload-json'
       fullPath: '/upload-json'
       preLoaderRoute: typeof UploadJsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sources': {
+      id: '/sources'
+      path: '/sources'
+      fullPath: '/sources'
+      preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SourcesRoute: SourcesRoute,
   UploadJsonRoute: UploadJsonRoute,
   ResourcesResourceIdRoute: ResourcesResourceIdRoute,
 }

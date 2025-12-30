@@ -3,6 +3,8 @@ import useSidebar from '../hooks/useSidebar'
 export default function Sidebar() {
   const { open, closeSidebar } = useSidebar()
 
+  // TODO: Refactor to use a map for nav items and DRY it up
+
   return (
     <>
       {/* Mobile sliding menu (controlled by header button via context) */}
@@ -13,8 +15,11 @@ export default function Sidebar() {
         </div>
         <nav>
           <ul>
-            <li className="mb-2">
+            <li>
               <a href="/" className="text-blue-600 hover:underline">Resources</a>
+            </li>
+            <li>
+              <a href="/sources" className="text-blue-600 hover:underline">Sources</a>
             </li>
             <li>
               <a href="/upload-json" className="text-blue-600 hover:underline">Upload JSON</a>
@@ -27,12 +32,15 @@ export default function Sidebar() {
       {open && <div className="fixed inset-0 bg-black/40 md:hidden z-40" onClick={() => closeSidebar()} />}
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:inline-block md:w-1/6 bg-gray-100 p-4">
+      <aside className="hidden md:block md:w-1/6 md:sticky md:top-0 md:h-screen md:overflow-auto bg-gray-100 p-4">
         <div className="text-2xl font-bold mb-4">Metis</div>
         <nav>
           <ul>
             <li>
               <a href="/" className="text-blue-600 hover:underline">Resources</a>
+            </li>
+            <li>
+              <a href="/sources" className="text-blue-600 hover:underline">Sources</a>
             </li>
             <li>
               <a href="/upload-json" className="text-blue-600 hover:underline">Upload JSON</a>

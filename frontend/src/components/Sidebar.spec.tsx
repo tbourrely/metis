@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react'
 import Sidebar from './Sidebar'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import useSidebar from '../hooks/useSidebar'
-import React from 'react'
 
 describe('Sidebar', () => {
   it('renders app name and resources link', () => {

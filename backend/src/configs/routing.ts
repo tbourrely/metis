@@ -3,13 +3,14 @@ export type Routes = {
   resources: {
     [key: string]: string;
   };
+  sources: { [key: string]: string };
   tags: { [key: string]: string };
   imports: { [key: string]: string };
 };
 
 export const routesV1: Routes = {
   version: 'v1',
-  tags: { resources: 'Resources', imports: 'Imports' },
+  tags: { resources: 'Resources', imports: 'Imports', sources: 'Sources' },
   resources: {
     root: '/resources',
     read: '/resources/:id',
@@ -17,6 +18,9 @@ export const routesV1: Routes = {
     update: '/resources/:id',
     readermode: '/resources/:id/readermode',
     refreshContent: '/resources/:id/refresh-content',
+  },
+  sources: {
+    root: '/sources',
   },
   imports: {
     root: '/import',
