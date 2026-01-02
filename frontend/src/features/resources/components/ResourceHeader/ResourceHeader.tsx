@@ -6,7 +6,7 @@ import useResourceContent from '../../hooks/useResourceContent';
 type Props = {
   resource: Resource;
   read: boolean;
-  setContent: (content: string) => void;
+  setContent?: (content: string) => void;
 }
 
 const RefreshButton = ({ onClick, loading }: { onClick: () => void; loading: boolean }) => (
@@ -28,7 +28,7 @@ export default function ResourceHeader({ resource, read, setContent }: Props) {
     try {
       await triggerRefresh(resource.id)
       const newContent = await fetchContent(resource.id)
-      setContent(newContent)
+      setContent?.(newContent)
     } catch (err) {
       console.error(err)
     }
