@@ -2,7 +2,7 @@ import { ResourceType } from '../domain/resource.types';
 import { ResourceGateway } from './resource.gateway';
 
 describe('ResourceGateway', () => {
-  jest.retryTimes(2); // Retry tests up to 2 times in case of transient network issues
+  // jest.retryTimes(2); // Retry tests up to 2 times in case of transient network issues
 
   it.each([
     {
@@ -114,6 +114,41 @@ describe('ResourceGateway', () => {
     expect(content.type).toBe(ResourceType.TEXT);
     expect(content.estimatedReadingTime).not.toBe(0);
     // ensure we return article content for text resources
+    expect(content.content).toBeDefined();
+    expect(content.content).not.toHaveLength(0);
+  });
+
+  it('should bypass Cloudflare protections when necessary', async () => {
+    const url = 'https://queue.acm.org/detail.cfm?id=3454124'; // known to have Cloudflare
+    const gw = new ResourceGateway();
+
+    const resourceDetails = await gw.get(url);
+    expect(resourceDetails.isOk()).toBe(true);
+    const content = resourceDetails.unwrap();
+    expect(content.source.url).toBe(url);
+    expect(content.source.name).toBe('queue.acm.org');
+    expect(content.name).toBe(
+      'The SPACE of Developer Productivity - ACM Queue',
+    );
+    expect(content.type).toBe(ResourceType.TEXT);
+    expect(content.estimatedReadingTime).not.toBe(0);
+    expect(content.content).toBeDefined();
+    expect(content.content).not.toHaveLength(0);
+  });
+
+  it('should handle access denied responses', async () => {
+    const url = 'https://www.uber.com/en-FR/blog/mysql-at-uber/';
+    const gw = new ResourceGateway();
+
+    const resourceDetails = await gw.get(url);
+
+    expect(resourceDetails.isOk()).toBe(true);
+    const content = resourceDetails.unwrap();
+    expect(content.name).toBe('MySQL At Uber | Uber Blog');
+    expect(content.source.url).toBe(url);
+    expect(content.source.name).toBe('www.uber.com');
+    expect(content.type).toBe(ResourceType.TEXT);
+    expect(content.estimatedReadingTime).not.toBe(0);
     expect(content.content).toBeDefined();
     expect(content.content).not.toHaveLength(0);
   });

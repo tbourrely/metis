@@ -53,6 +53,15 @@ export class ResourceGateway {
       });
       const content = await result.text();
       const status = result.status;
+
+      if (status >= 400) {
+        return Err(
+          new Error(`Failed to fetch resource from ${url}`, {
+            cause: `HTTP status ${status}`,
+          }),
+        );
+      }
+
       return Ok({ headers, content, status });
     } catch (error) {
       return Err(new Error(`Fetch failed for ${url}: ${error}`));
@@ -71,6 +80,13 @@ export class ResourceGateway {
     const browser = await puppeteer.launch({ headless: true });
     try {
       const page = await browser.newPage();
+      await page.setUserAgent({
+        userAgent:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+      });
+      await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+      });
       const response = await page.goto(url, { waitUntil: 'networkidle2' });
       if (!response) {
         throw new Error('No response received');
@@ -80,6 +96,14 @@ export class ResourceGateway {
       const html = await page.content();
       const status = response.status();
       await browser.close();
+
+      if (status >= 400) {
+        return Err(
+          new Error(`Failed to fetch resource from ${url}`, {
+            cause: `HTTP status ${status}`,
+          }),
+        );
+      }
 
       return Ok({ headers, content: html, status });
     } catch (error) {
