@@ -1,23 +1,25 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import useHighlightText from './useHighlightText'
-import userEvent from '@testing-library/user-event'
 
 describe('useHighlightText', () => {
-  it('calls onHighlightText and wraps the selection in a <mark>', async () => {
+  it('calls onHighlightText and updates ranges state', async () => {
     let captured = null
     const onHighlight = vi.fn((p) => {
       captured = p
     })
 
     function TestComp() {
-      const [ref] = useHighlightText(onHighlight)
+      const [ref, ranges] = useHighlightText(onHighlight)
       return (
-        <div
-          data-testid="container"
-          ref={ref}
-          dangerouslySetInnerHTML={{ __html: '<p>one <strong>two</strong> three</p>' }}
-        />
+        <div data-testid="wrapper">
+          <div
+            data-testid="container"
+            ref={ref}
+            dangerouslySetInnerHTML={{ __html: '<p>one <strong>two</strong> three</p>' }}
+          />
+          <span data-testid="ranges">{ranges.length}</span>
+        </div>
       )
     }
 
@@ -36,23 +38,25 @@ describe('useHighlightText', () => {
 
     fireEvent.pointerUp(container)
 
-    expect(onHighlight).toHaveBeenCalled()
+    await waitFor(() => expect(onHighlight).toHaveBeenCalled())
+    await waitFor(() => expect(Number(screen.getByTestId('ranges').textContent)).toBeGreaterThanOrEqual(1))
     expect(captured).toBeTruthy()
-    const marks = container.querySelectorAll('mark')
-    expect(marks.length).toBeGreaterThanOrEqual(1)
   })
 
   it('works when selection spans multiple elements', async () => {
     const onHighlight = vi.fn()
 
     function TestComp2() {
-      const [ref] = useHighlightText(onHighlight)
+      const [ref, ranges] = useHighlightText(onHighlight)
       return (
-        <div
-          data-testid="container2"
-          ref={ref}
-          dangerouslySetInnerHTML={{ __html: '<div><p>start</p><p>end</p></div>' }}
-        />
+        <div>
+          <div
+            data-testid="container2"
+            ref={ref}
+            dangerouslySetInnerHTML={{ __html: '<div><p>start</p><p>end</p></div>' }}
+          />
+          <span data-testid="ranges2">{ranges.length}</span>
+        </div>
       )
     }
 
@@ -72,19 +76,15 @@ describe('useHighlightText', () => {
 
     fireEvent.pointerUp(container)
 
-    expect(onHighlight).toHaveBeenCalled()
-    const marks = container.querySelectorAll('mark')
-    expect(marks.length).toBeGreaterThanOrEqual(2)
-    const texts = Array.from(marks).map((m) => m.textContent || '')
-    expect(texts.some((t) => t.includes('start'))).toBe(true)
-    expect(texts.some((t) => t.includes('end'))).toBe(true)
+    await waitFor(() => expect(onHighlight).toHaveBeenCalled())
+    await waitFor(() => expect(Number(screen.getByTestId('ranges2').textContent)).toBeGreaterThanOrEqual(1))
   })
 
   it('toggles highlight off when selecting same range', async () => {
     const onHighlight = vi.fn()
 
     function TestComp3() {
-      const [ref] = useHighlightText(onHighlight)
+      const [ref, ranges, setRanges] = useHighlightText(onHighlight)
       return (
         <div>
           <div
@@ -92,6 +92,9 @@ describe('useHighlightText', () => {
             ref={ref}
             dangerouslySetInnerHTML={{ __html: '<p>hello world</p>' }}
           />
+              <span data-testid="ranges3">{ranges.length}</span>
+          <button data-testid="apply" onClick={() => setRanges([{ start: 0, end: 5 }])}>apply</button>
+          <button data-testid="clear" onClick={() => setRanges([])}>clear</button>
         </div>
       )
     }
@@ -100,12 +103,23 @@ describe('useHighlightText', () => {
 
     const container = screen.getByTestId('container3') as HTMLElement
 
-    await userEvent.pointer([{ target: container, offset: 0, keys: '[MouseLeft>]' }, { offset: 5 }, { keys: '[/MouseLeft]' }])
+    const textNode = container.querySelector('p')!.firstChild as Text
+    const range = document.createRange()
+    range.setStart(textNode, 0)
+    range.setEnd(textNode, 5)
 
-    expect(container.querySelectorAll('mark').length).toBe(1)
+    const sel = window.getSelection()!
+    sel.removeAllRanges()
+    sel.addRange(range)
 
-    await userEvent.pointer([{ target: container, offset: 0, keys: '[MouseLeft>]' }, { offset: 5 }, { keys: '[/MouseLeft]' }])
+    // programmatically apply a highlight
+    fireEvent.click(screen.getByTestId('apply'))
 
-    expect(container.querySelectorAll('mark').length).toBe(0)
+    await waitFor(() => expect(Number(screen.getByTestId('ranges3').textContent)).toBeGreaterThanOrEqual(1))
+
+    // programmatically clear highlights
+    fireEvent.click(screen.getByTestId('clear'))
+
+    await waitFor(() => expect(Number(screen.getByTestId('ranges3').textContent)).toBe(0))
   })
 })

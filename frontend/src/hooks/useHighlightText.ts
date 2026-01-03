@@ -80,6 +80,7 @@ const createRangeFromTextOffset = (
 
 // Apply or unapply highlight for a given range
 const applyRange = (range: RangeInfo, container: Node, mode: ApplyMode) => {
+  console.log("Applying range:", range, "Mode:", ApplyMode[mode]);
   const domRange = createRangeFromTextOffset(range, container);
   if (!domRange) return false;
 
@@ -120,6 +121,8 @@ const wrap = (fragment: DocumentFragment): DocumentFragment => {
   }
 
   textNodes.forEach((textNode) => {
+    if (textNode.textContent?.trim().length === 0) return; // Skip empty text nodes
+    console.log("Wrapping text node:", textNode.textContent);
     const span = document.createElement("mark");
     span.textContent = textNode.textContent;
     textNode.parentNode?.replaceChild(span, textNode);
@@ -144,7 +147,6 @@ const unwrap = (fragment: DocumentFragment): DocumentFragment => {
 
   markNodes.forEach((markNode) => {
     const parent = markNode.parentNode;
-    parent?.insertBefore(document.createTextNode("test before"), markNode);
     while (markNode.firstChild) {
       parent?.insertBefore(markNode.firstChild, markNode);
     }
@@ -154,49 +156,53 @@ const unwrap = (fragment: DocumentFragment): DocumentFragment => {
   return fragment;
 };
 
-// Convert current selection to RangeInfo
-const selectionToRange = (): RangeInfo | undefined => {
-  const selection = window.getSelection();
-
-  if (!selection || selection.toString().length <= 0) return;
-
-  const range = selection.getRangeAt(0);
-
-  const result = {
-    start: getTextOffset(
-      range.startContainer,
-      range.startOffset,
-      document.body,
-    ),
-    end: getTextOffset(range.endContainer, range.endOffset, document.body),
-  };
-
-  return result;
-};
-
-// Handle adding or removing a range in state
-const handleRange = (
-  rangeInfo: RangeInfo,
-): ((prev: RangeInfo[]) => RangeInfo[]) => {
-  // TODO: handle overlapping
-  return (prev: RangeInfo[]) => {
-    const existingIndex = prev.findIndex(
-      (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
-    );
-    if (existingIndex !== -1) {
-      applyRange(rangeInfo, document.body, ApplyMode.UNAPPLY); // Unhighlight (update dom + state)
-      return prev.filter((_, i) => i !== existingIndex);
-    }
-
-    return [...prev, rangeInfo];
-  };
-};
-
 export default function useHighlightText(
   callback: (r: RangeInfo) => unknown = () => {},
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [ranges, setRanges] = useState<RangeInfo[]>([]);
+
+  // Convert current selection to RangeInfo
+  const selectionToRange = (): RangeInfo | undefined => {
+    if (!containerRef.current) return;
+    const selection = window.getSelection();
+    if (!selection || selection.toString().length <= 0) return;
+    const range = selection.getRangeAt(0);
+
+    const result = {
+      start: getTextOffset(
+        range.startContainer,
+        range.startOffset,
+        containerRef.current,
+      ),
+      end: getTextOffset(
+        range.endContainer,
+        range.endOffset,
+        containerRef.current,
+      ),
+    };
+
+    return result;
+  };
+
+  // Handle adding or removing a range in state
+  const handleRange = (
+    rangeInfo: RangeInfo,
+  ): ((prev: RangeInfo[]) => RangeInfo[]) => {
+    // TODO: handle overlapping
+    return (prev: RangeInfo[]) => {
+      const existingIndex = prev.findIndex(
+        (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
+      );
+      if (existingIndex !== -1) {
+        if (containerRef.current)
+          applyRange(rangeInfo, containerRef.current, ApplyMode.UNAPPLY); // Unhighlight (update dom + state)
+        return prev.filter((_, i) => i !== existingIndex);
+      }
+
+      return [...prev, rangeInfo];
+    };
+  };
 
   const pointerUpHandler = useCallback(() => {
     const rangeInfo = selectionToRange();
@@ -207,10 +213,14 @@ export default function useHighlightText(
     }
   }, [callback]);
 
-  // Apply existing ranges on mount
   useEffect(() => {
+    console.log("Applying existing ranges:", ranges);
     ranges.forEach((rangeInfo) => {
-      applyRange(rangeInfo, document.body, ApplyMode.APPLY);
+      if (!containerRef.current) {
+        console.error("Container ref is null");
+        return;
+      }
+      applyRange(rangeInfo, containerRef.current, ApplyMode.APPLY);
     });
   }, [ranges]);
 
@@ -218,10 +228,12 @@ export default function useHighlightText(
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    console.log("Attaching pointerup listener");
 
     container.addEventListener("pointerup", pointerUpHandler);
     return () => {
-      document.removeEventListener("pointerup", pointerUpHandler);
+      console.log("Cleaning up pointerup listener");
+      container.removeEventListener("pointerup", pointerUpHandler);
     };
   }, [containerRef, pointerUpHandler]);
 
