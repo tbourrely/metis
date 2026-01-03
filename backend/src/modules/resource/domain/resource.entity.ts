@@ -2,6 +2,7 @@ import {
   CreateResourceProps,
   ResourceProps,
   ResourceType,
+  Highlight,
 } from './resource.types';
 
 export class ResourceEntity {
@@ -17,6 +18,7 @@ export class ResourceEntity {
       read: false,
       createdAt: new Date(),
       id: crypto.randomUUID(),
+      higlights: [],
     });
   }
 
@@ -50,6 +52,14 @@ export class ResourceEntity {
 
   get content(): string | undefined {
     return this.props.content;
+  }
+
+  get highlights() {
+    return this.props.higlights;
+  }
+
+  set highlights(highlights: Highlight[]) {
+    this.props.higlights = highlights;
   }
 
   set content(content: string) {

@@ -1,3 +1,8 @@
+export interface Highlight {
+  start: number;
+  end: number;
+}
+
 export interface ResourceProps {
   id: string;
   name: string;
@@ -7,6 +12,7 @@ export interface ResourceProps {
   read: boolean;
   estimatedReadingTime?: number;
   content?: string;
+  higlights: Highlight[];
 }
 
 export interface CreateResourceProps {

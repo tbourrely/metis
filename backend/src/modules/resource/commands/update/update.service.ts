@@ -42,6 +42,10 @@ export class UpdateService {
       resource.name = command.name;
     }
 
+    if (command.highlights !== undefined) {
+      resource.highlights = command.highlights;
+    }
+
     const updated = await this.repository.update(resource);
     return Ok(updated);
   }
