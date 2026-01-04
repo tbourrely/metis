@@ -10,6 +10,8 @@ export enum ApplyMode {
 }
 
 // Get absolute text offset in container
+// Example: if container has "Hello <b>World</b>!", and node is the text node "World" with offset 2, this returns 8
+// (5 for "Hello", 1 for space, 2 into "World")
 export const getTextOffset = (
   node: Node,
   offset: number,
@@ -79,15 +81,22 @@ export const createRangeFromTextOffset = (
   return null;
 };
 
-// Apply or unapply highlight for a given range
+/**
+ * Apply or unapply a highlight range to a container node, without modifying the original node.
+ * @param range The range to apply or unapply
+ * @param container The container node
+ * @param mode ApplyMode.APPLY to highlight, ApplyMode.UNAPPLY to remove highlight
+ * @returns A new Node with the range applied or unapplied
+ */
 export const applyRange = (
   range: RangeItem,
   container: Node,
   mode: ApplyMode,
-) => {
-  console.log("Applying range:", range, "Mode:", ApplyMode[mode]);
-  const domRange = createRangeFromTextOffset(range, container);
-  if (!domRange) return false;
+): Node => {
+  const c = container.cloneNode(true);
+  console.debug("Applying range:", range, "Mode:", ApplyMode[mode]);
+  const domRange = createRangeFromTextOffset(range, c);
+  if (!domRange) return c;
 
   try {
     const fragment = domRange.extractContents();
@@ -105,15 +114,15 @@ export const applyRange = (
     }
 
     domRange.insertNode(appliedFragment);
-    return true;
   } catch (error) {
     console.error("Error applying range:", error);
-    return false;
   }
+
+  return c;
 };
 
 // Wrap text nodes in a fragment with <mark> elements
-export const wrap = (fragment: DocumentFragment): DocumentFragment => {
+const wrap = (fragment: DocumentFragment): DocumentFragment => {
   const walker = document.createTreeWalker(
     fragment,
     NodeFilter.SHOW_TEXT,
@@ -127,7 +136,7 @@ export const wrap = (fragment: DocumentFragment): DocumentFragment => {
 
   textNodes.forEach((textNode) => {
     if (textNode.textContent?.trim().length === 0) return; // Skip empty text nodes
-    console.log("Wrapping text node:", textNode.textContent);
+    console.debug("Wrapping text node:", textNode.textContent);
     const span = document.createElement("mark");
     span.textContent = textNode.textContent;
     textNode.parentNode?.replaceChild(span, textNode);
@@ -137,7 +146,7 @@ export const wrap = (fragment: DocumentFragment): DocumentFragment => {
 };
 
 // Unwrap <mark> elements in a fragment
-export const unwrap = (fragment: DocumentFragment): DocumentFragment => {
+const unwrap = (fragment: DocumentFragment): DocumentFragment => {
   const walker = document.createTreeWalker(fragment, NodeFilter.SHOW_ELEMENT, {
     acceptNode: (node) =>
       node.nodeName.toLowerCase() === "mark"

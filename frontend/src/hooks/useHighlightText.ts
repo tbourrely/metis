@@ -51,8 +51,16 @@ export default function useHighlightText(
         (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
       );
       if (existingIndex !== -1) {
-        if (containerRef.current)
-          applyRange(rangeInfo, containerRef.current, ApplyMode.UNAPPLY); // Unhighlight (update dom + state)
+        if (containerRef.current) {
+          const nextContent = applyRange(
+            rangeInfo,
+            containerRef.current,
+            ApplyMode.UNAPPLY,
+          ); // Unhighlight (update dom + state)
+          containerRef.current.innerHTML = (
+            nextContent as HTMLElement
+          ).innerHTML;
+        }
         return prev.filter((_, i) => i !== existingIndex);
       }
 
@@ -61,6 +69,7 @@ export default function useHighlightText(
   };
 
   const pointerUpHandler = useCallback(() => {
+    console.debug("Pointer up detected");
     const rangeInfo = selectionToRange();
 
     if (rangeInfo) {
@@ -70,25 +79,28 @@ export default function useHighlightText(
   }, [callback]);
 
   useEffect(() => {
-    console.log("Applying existing ranges:", ranges);
-    ranges.forEach((rangeInfo) => {
-      if (!containerRef.current) {
-        console.error("Container ref is null");
-        return;
-      }
-      applyRange(rangeInfo, containerRef.current, ApplyMode.APPLY);
-    });
+    if (!containerRef.current) {
+      console.error("Container ref is null");
+      return;
+    }
+
+    console.debug("Applying existing ranges:", ranges);
+    const nextContainer = ranges.reduce((currentContainer, rangeInfo) => {
+      return applyRange(rangeInfo, currentContainer, ApplyMode.APPLY);
+    }, containerRef.current.cloneNode(true));
+
+    containerRef.current.innerHTML = (nextContainer as HTMLElement).innerHTML;
   }, [ranges]);
 
   // Attach pointerup listener to container
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    console.log("Attaching pointerup listener");
+    console.debug("Attaching pointerup listener");
 
     container.addEventListener("pointerup", pointerUpHandler);
     return () => {
-      console.log("Cleaning up pointerup listener");
+      console.debug("Cleaning up pointerup listener");
       container.removeEventListener("pointerup", pointerUpHandler);
     };
   }, [containerRef, pointerUpHandler]);
