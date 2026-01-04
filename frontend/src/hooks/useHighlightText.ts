@@ -1,22 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ApplyMode,
-  applyRange,
-  getTextOffset,
-  type RangeItem,
-} from "../lib/highlighting";
+import { getTextOffset, type RangeItem } from "../lib/highlighting";
 
-// FIXME:
-// - issue when highlighing a list item
-// - performance when many highlights
-// - overlapping highlights
-//
-// Try to not modify the DOM directly but edit the content and re-render once instead
-export default function useHighlightText(
-  callback: (r: RangeItem) => unknown = () => {},
-) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [ranges, setRanges] = useState<RangeItem[]>([]);
+/**
+ * Custom hook to manage text highlighting within a container element.
+ * It tracks highlighted ranges and updates them based on user selections.
+ * @param initialRanges - Initial highlighted ranges.
+ * @returns A tuple containing a ref to the container element and the current highlighted ranges.
+ */
+export default function useHighlightText(initialRanges: RangeItem[] = []) {
+  const containerRef = useRef<HTMLDivElement>(null); // The container to attach eventlisteners to
+  const [ranges, setRanges] = useState<RangeItem[]>(initialRanges);
 
   // Convert current selection to RangeItem
   const selectionToRange = (): RangeItem | undefined => {
@@ -42,55 +35,30 @@ export default function useHighlightText(
   };
 
   // Handle adding or removing a range in state
-  const handleRange = (
-    rangeInfo: RangeItem,
-  ): ((prev: RangeItem[]) => RangeItem[]) => {
-    // TODO: handle overlapping
-    return (prev: RangeItem[]) => {
-      const existingIndex = prev.findIndex(
-        (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
-      );
-      if (existingIndex !== -1) {
-        if (containerRef.current) {
-          const nextContent = applyRange(
-            rangeInfo,
-            containerRef.current,
-            ApplyMode.UNAPPLY,
-          ); // Unhighlight (update dom + state)
-          containerRef.current.innerHTML = (
-            nextContent as HTMLElement
-          ).innerHTML;
-        }
-        return prev.filter((_, i) => i !== existingIndex);
-      }
-
-      return [...prev, rangeInfo];
-    };
-  };
-
   const pointerUpHandler = useCallback(() => {
+    const handleRange = (
+      rangeInfo: RangeItem,
+    ): ((prev: RangeItem[]) => RangeItem[]) => {
+      // TODO: handle overlapping
+      return (prev: RangeItem[]) => {
+        const existingIndex = prev.findIndex(
+          (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
+        );
+        if (existingIndex !== -1) {
+          return prev.filter((_, i) => i !== existingIndex);
+        }
+
+        return [...prev, rangeInfo];
+      };
+    };
+
     console.debug("Pointer up detected");
     const rangeInfo = selectionToRange();
 
     if (rangeInfo) {
       setRanges(handleRange(rangeInfo));
-      callback(rangeInfo);
     }
-  }, [callback]);
-
-  useEffect(() => {
-    if (!containerRef.current) {
-      console.error("Container ref is null");
-      return;
-    }
-
-    console.debug("Applying existing ranges:", ranges);
-    const nextContainer = ranges.reduce((currentContainer, rangeInfo) => {
-      return applyRange(rangeInfo, currentContainer, ApplyMode.APPLY);
-    }, containerRef.current.cloneNode(true));
-
-    containerRef.current.innerHTML = (nextContainer as HTMLElement).innerHTML;
-  }, [ranges]);
+  }, []);
 
   // Attach pointerup listener to container
   useEffect(() => {
@@ -105,5 +73,5 @@ export default function useHighlightText(
     };
   }, [containerRef, pointerUpHandler]);
 
-  return [containerRef, ranges, setRanges] as const;
+  return [containerRef, ranges] as const;
 }

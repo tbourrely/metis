@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import useResource from '../features/resources/hooks/useResource'
 import ResourceHeader from '../features/resources/components/ResourceHeader'
 import ResourceContentHtml from '../features/resources/components/ResourceContentHtml'
 import FloatingActions from '../features/resources/components/FloatingActions'
 import { isPdf } from '../lib/supportedDocuments'
 import useIsIosDevice from '../hooks/useIsIosDevice'
-import useHighlightText from '../hooks/useHighlightText'
 import useUpdateHighlights from '../features/resources/hooks/useUpdateHighlights'
 
 function ResourcePdfViewer({ url, isFullScreen }: { url: string; isFullScreen: boolean }) {
@@ -23,38 +22,15 @@ export default function ResourceView() {
   const { resource, content, read, toggleRead, remove, loading, setContent } = useResource()
   const isIos = useIsIosDevice();
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [containerRef, ranges, setRanges] = useHighlightText();
   const [updateHighlights] = useUpdateHighlights();
-  const rangesRef = useRef(ranges);
 
-  useEffect(() => {
-    if (loading) return;
-    if (!content) return;
-    if (!resource.highlights || resource.highlights.length === 0) return;
-    setRanges(resource.highlights);
-  }, [resource, setRanges, content, loading]);
-
-  const callback = useCallback(async () => {
+  const handleHighlightChange = useCallback(async (ranges: { start: number; end: number }[]) => {
     try {
       await updateHighlights(resource.id, ranges);
     } catch (err) {
-      console.error("Failed to update highlights:", err);
+      console.error('Failed to update highlights:', err);
     }
-  }, [ranges, resource.id, updateHighlights]);
-
-  // useEffect(() => {
-  //   if (ranges === rangesRef.current) return;
-  //   if (resource.highlights && JSON.stringify(resource.highlights) === JSON.stringify(ranges)) {
-  //     return;
-  //   }
-  //   rangesRef.current = ranges;
-  //
-  //   (async () => {
-  //     await callback();
-  //   })();
-  // }, [ranges, resource, updateHighlights, callback]);
-
-  // derive highlighted HTML from content + ranges
+  }, [resource.id, updateHighlights]);
 
   const handleFullScreenChange = () => {
     setIsFullScreen(!isFullScreen);
@@ -75,9 +51,7 @@ export default function ResourceView() {
       )}
 
       {!loading && content && resource.type === 'text' && (
-        <div ref={containerRef}>
-          <ResourceContentHtml html={content} read={read} />
-        </div>
+        <ResourceContentHtml html={content} read={read} ranges={resource.highlights} onHighlight={handleHighlightChange} />
       )}
 
       {!isIos && isPdfDocument && (
