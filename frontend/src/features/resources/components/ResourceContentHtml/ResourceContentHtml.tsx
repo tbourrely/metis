@@ -11,7 +11,8 @@ type ResourceContentHtmlProps = {
 
 export default function ResourceContentHtml({ html, read, ranges = [], onHighlight }: ResourceContentHtmlProps) {
   const [content, setContent] = useState<string>(html);
-  const [containerRef, internalRanges] = useHighlightText(ranges);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [internalRanges] = useHighlightText(containerRef, ranges);
   const prevRangesRef = useRef<RangeItem[]>(ranges);
 
   const domParser = new DOMParser();
@@ -33,8 +34,8 @@ export default function ResourceContentHtml({ html, read, ranges = [], onHighlig
   useEffect(() => {
     if (prevRangesRef.current === internalRanges) return;
     prevRangesRef.current = internalRanges;
-    if (onHighlight)
-      onHighlight(internalRanges);
+    // if (onHighlight)
+    // onHighlight(internalRanges);
   }, [internalRanges, onHighlight]);
 
   return (

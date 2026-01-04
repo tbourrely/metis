@@ -30,6 +30,29 @@ describe("highlighting utils", () => {
       expect(range).toBeTruthy();
       expect(range?.toString()).toBe("startend");
     });
+
+    it("returns the parent container when range covers all text", () => {
+      container.innerHTML = "<p>hello world</p>";
+
+      const range = createRangeFromTextOffset({ start: 0, end: 11 }, container);
+      expect(range).toBeTruthy();
+      const p = container.querySelector("p")!;
+      expect(range!.startContainer.nodeType).toBe(p.nodeType);
+      expect(range!.endContainer.nodeType).toBe(p.nodeType);
+      expect(range!.startOffset).toBe(0);
+    });
+
+    it("returns the li item when range covers at leat one full li", () => {
+      container.innerHTML = "<ul><li>first item</li><li>second item</li></ul>";
+
+      const range = createRangeFromTextOffset({ start: 0, end: 11 }, container);
+      expect(range).toBeTruthy();
+      const li = container.querySelector("li")!;
+      expect(range!.startContainer.nodeType).toBe(li.nodeType);
+      expect(range!.endContainer.nodeType).toBe(Node.TEXT_NODE);
+      expect(range!.startOffset).toBe(0);
+      expect(range!.endOffset).toBe(1);
+    });
   });
 
   describe("applyRange", () => {
@@ -60,6 +83,22 @@ describe("highlighting utils", () => {
       expect(unapplied.textContent?.replace(/\s+/g, " ")).toContain(
         "one two three",
       );
+    });
+
+    it("applyRange handles list items", () => {
+      container.innerHTML = "<ul><li>first item</li><li>second item</li></ul>";
+
+      const applied = applyRange(
+        { start: 0, end: 11 },
+        container,
+        ApplyMode.APPLY,
+      );
+
+      const appliedText = (applied as HTMLElement).innerHTML;
+
+      const expected =
+        "<ul><li><mark>first item</mark></li><li><mark>s</mark>econd item</li></ul>";
+      expect(appliedText).toBe(expected);
     });
   });
 

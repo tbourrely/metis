@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
 import useHighlightText from './useHighlightText'
 import userEvent from '@testing-library/user-event'
+import { applyRange } from '../lib/highlighting'
 
 describe('useHighlightText', () => {
   it('calls onHighlightText and updates ranges state', async () => {
@@ -69,5 +70,22 @@ describe('useHighlightText', () => {
     await waitFor(() => expect(Number(screen.getByTestId('ranges3').textContent)).toBe(1))
     await userEvent.pointer([{ keys: '[MouseLeft>]', target: screen.getByTestId('container3'), offset: 0 }, { offset: 5 }, { keys: '[/MouseLeft]' }])
     await waitFor(() => expect(Number(screen.getByTestId('ranges3').textContent)).toBe(0))
+  })
+
+  it('does not allow partial overlapping highlights', async () => {
+    const element = document.createElement('div')
+    element.innerHTML = ` <ul><li>First item</li><li>Second item</li><li>Third item</li></ul>`
+    document.body.appendChild(element)
+
+    const { result } = renderHook(() => {
+      const ref = { current: element }
+      return useHighlightText(ref)
+    })
+
+    console.log(result.current)
+
+    await userEvent.pointer([{ keys: '[MouseLeft>]', target: element, offset: 0 }, { offset: 5 }, { keys: '[/MouseLeft]' }])
+
+    console.log(result.current)
   })
 })

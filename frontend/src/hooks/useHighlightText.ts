@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { getTextOffset, type RangeItem } from "../lib/highlighting";
 
 /**
@@ -7,39 +13,44 @@ import { getTextOffset, type RangeItem } from "../lib/highlighting";
  * @param initialRanges - Initial highlighted ranges.
  * @returns A tuple containing a ref to the container element and the current highlighted ranges.
  */
-export default function useHighlightText(initialRanges: RangeItem[] = []) {
-  const containerRef = useRef<HTMLDivElement>(null); // The container to attach eventlisteners to
+export default function useHighlightText(
+  containerRef: RefObject<HTMLDivElement | null>,
+  initialRanges: RangeItem[] = [],
+) {
+  // const containerRef = useRef<HTMLDivElement>(null); // The container to attach eventlisteners to
   const [ranges, setRanges] = useState<RangeItem[]>(initialRanges);
-
-  // Convert current selection to RangeItem
-  const selectionToRange = (): RangeItem | undefined => {
-    if (!containerRef.current) return;
-    const selection = window.getSelection();
-    if (!selection || selection.toString().length <= 0) return;
-    const range = selection.getRangeAt(0);
-
-    const result = {
-      start: getTextOffset(
-        range.startContainer,
-        range.startOffset,
-        containerRef.current,
-      ),
-      end: getTextOffset(
-        range.endContainer,
-        range.endOffset,
-        containerRef.current,
-      ),
-    };
-
-    return result;
-  };
 
   // Handle adding or removing a range in state
   const pointerUpHandler = useCallback(() => {
+    const selectionToRange = (): RangeItem | undefined => {
+      console.debug("Converting selection to range");
+      if (!containerRef?.current) return;
+      console.debug("Container ref current:", containerRef.current);
+      const selection = window.getSelection();
+      console.debug("Current selection:", selection);
+      if (!selection || selection.toString().length <= 0) return;
+      console.debug("Selection string:", selection.toString());
+      const range = selection.getRangeAt(0);
+
+      const result = {
+        start: getTextOffset(
+          range.startContainer,
+          range.startOffset,
+          containerRef.current,
+        ),
+        end: getTextOffset(
+          range.endContainer,
+          range.endOffset,
+          containerRef.current,
+        ),
+      };
+
+      return result;
+    };
+
     const handleRange = (
       rangeInfo: RangeItem,
     ): ((prev: RangeItem[]) => RangeItem[]) => {
-      // TODO: handle overlapping
       return (prev: RangeItem[]) => {
         const existingIndex = prev.findIndex(
           (r) => r.start === rangeInfo.start && r.end === rangeInfo.end,
@@ -54,11 +65,12 @@ export default function useHighlightText(initialRanges: RangeItem[] = []) {
 
     console.debug("Pointer up detected");
     const rangeInfo = selectionToRange();
+    console.debug("Selected range info:", rangeInfo);
 
     if (rangeInfo) {
       setRanges(handleRange(rangeInfo));
     }
-  }, []);
+  }, [containerRef]);
 
   // Attach pointerup listener to container
   useEffect(() => {
@@ -73,5 +85,5 @@ export default function useHighlightText(initialRanges: RangeItem[] = []) {
     };
   }, [containerRef, pointerUpHandler]);
 
-  return [containerRef, ranges] as const;
+  return [ranges] as const;
 }
