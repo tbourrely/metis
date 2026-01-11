@@ -57,6 +57,7 @@ const parentNodeIfText = (node: MarkNode): MarkNode => {
     console.debug(
       "Wrapping text node, using parent and adjusted offset:",
       newNode,
+      newNode.nodeType,
       newStart,
       newEnd,
     );
@@ -69,6 +70,8 @@ const parentNodeIfText = (node: MarkNode): MarkNode => {
   return node;
 };
 
+// Wrap text in container from rangeInfo.start to rangeInfo.end with <mark> elements
+// Works in two passes: first, find the start and end nodes, then apply the wrapping
 const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
   const walker = document.createTreeWalker(
     container,
@@ -92,8 +95,11 @@ const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
     console.debug("CurrentOffset + nodeLength:", currentOffset + nodeLength);
 
     if (!startNode && currentOffset + nodeLength > rangeInfo.start) {
-      console.debug("Determined start node:", currentNode.textContent);
-      console.debug("currentOffset + nodeLength:", currentOffset + nodeLength);
+      console.debug(
+        "Determined start node:",
+        currentNode.textContent,
+        currentNode.nodeType,
+      );
 
       const startNodeOffset = rangeInfo.start - currentOffset;
 
@@ -104,26 +110,21 @@ const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
             currentNode.textContent,
           );
 
-          startNode = {
+          startNode = parentNodeIfText({
             node: currentNode,
             start: 0,
             end: nodeLength,
-          };
-          startNode = parentNodeIfText(startNode);
+          });
           endNode = startNode;
           break;
-        } else if (currentOffset + nodeLength < rangeInfo.end) {
-          console.debug(
-            "Range extends beyond current node, but covers it fully.",
-          );
-
-          startNode = {
-            node: currentNode,
-            start: 0,
-            end: nodeLength,
-          };
-          startNode = parentNodeIfText(startNode);
         }
+
+        console.debug("Node wrapping from start");
+        startNode = parentNodeIfText({
+          node: currentNode,
+          start: 0,
+          end: nodeLength,
+        });
       } else {
         console.debug(
           "partial start node wrapping",
@@ -131,12 +132,11 @@ const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
           nodeLength,
         );
 
-        startNode = {
+        startNode = parentNodeIfText({
           node: currentNode,
           start: startNodeOffset,
           end: nodeLength,
-        };
-        startNode = parentNodeIfText(startNode);
+        });
       }
     }
 
@@ -144,12 +144,11 @@ const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
       console.debug("End of range found in node:", currentNode.textContent);
       const endNodeOffset = rangeInfo.end - currentOffset;
 
-      endNode = {
+      endNode = parentNodeIfText({
         node: currentNode,
         start: 0,
         end: endNodeOffset,
-      };
-      endNode = parentNodeIfText(endNode);
+      });
       break;
     }
 
@@ -157,12 +156,23 @@ const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
     console.debug("Updated current offset:", currentOffset);
   }
 
+  if (!startNode || !endNode) {
+    console.debug(startNode, endNode);
+    console.error("Could not determine start or end node, aborting.");
+    return;
+  }
+
   console.debug("Start node:", startNode);
   console.debug("End node:", endNode);
 
-  if (!startNode || !endNode) {
-    console.error("Could not determine start or end node, aborting.");
-    return;
+  if (endNode.node.contains(startNode.node)) {
+    console.debug(
+      "End node contains start node, adjusting start node to end node.",
+    );
+
+    const prev = startNode;
+    startNode = endNode;
+    startNode.start = prev.start;
   }
 
   if (startNode.node === endNode.node) {
@@ -289,6 +299,7 @@ const wrap = (fragment: Node, startOffset: number, endOffset: number): Node => {
 
     if (currentOffset + textNode.textContent!.length < startOffset) {
       currentOffset += textNode.textContent!.length;
+      console.debug("Skipping text node, before startOffset");
       return;
     }
 
@@ -297,6 +308,7 @@ const wrap = (fragment: Node, startOffset: number, endOffset: number): Node => {
       return;
     }
 
+    console.debug("currentOffset:", currentOffset);
     const nodeStart = Math.max(0, startOffset - currentOffset);
     const nodeEnd = Math.min(
       textNode.textContent!.length,
@@ -304,10 +316,11 @@ const wrap = (fragment: Node, startOffset: number, endOffset: number): Node => {
     );
 
     if (nodeStart === 0 && nodeEnd === textNode.textContent!.length) {
-      console.debug("Highlighting entire text node");
+      console.debug("Highlighting entire text node", nodeStart, nodeEnd);
       const mark = document.createElement("mark");
       mark.textContent = textNode.textContent;
       textNode.parentNode?.replaceChild(mark, textNode);
+      currentOffset += textNode.textContent!.length;
     } else {
       console.debug("Highlighting partial text node:", nodeStart, nodeEnd);
       const beforeText = textNode.textContent!.slice(0, nodeStart);

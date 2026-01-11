@@ -7,11 +7,11 @@ import { getTextOffset, type RangeItem } from "../lib/highlighting";
  * @param initialRanges - Initial highlighted ranges.
  * @returns A tuple containing a ref to the container element and the current highlighted ranges.
  */
+// TODO: do not allow overlapping ranges
 export default function useHighlightText(
   containerRef: RefObject<HTMLDivElement | null>,
   initialRanges: RangeItem[] = [],
 ) {
-  // const containerRef = useRef<HTMLDivElement>(null); // The container to attach eventlisteners to
   const [ranges, setRanges] = useState<RangeItem[]>(initialRanges);
 
   // Handle adding or removing a range in state
