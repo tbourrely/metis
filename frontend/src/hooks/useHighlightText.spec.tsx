@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react'
+import { render, renderHook, screen, waitFor } from '@testing-library/react'
 import useHighlightText from './useHighlightText'
 import userEvent from '@testing-library/user-event'
-import { applyRange } from '../lib/highlighting'
+import { useRef } from 'react'
 
 describe('useHighlightText', () => {
   it('calls onHighlightText and updates ranges state', async () => {
     function TestComp() {
-      const [ref, ranges] = useHighlightText()
+      const ref = useRef(null)
+      const [ranges] = useHighlightText(ref)
       return (
         <div data-testid="wrapper">
           <div
@@ -29,7 +30,8 @@ describe('useHighlightText', () => {
 
   it('works when selection spans multiple elements', async () => {
     function TestComp2() {
-      const [ref, ranges] = useHighlightText()
+      const ref = useRef(null)
+      const [ranges] = useHighlightText(ref)
       return (
         <div>
           <div
@@ -51,7 +53,8 @@ describe('useHighlightText', () => {
 
   it('toggles highlight off when selecting same range', async () => {
     function TestComp3() {
-      const [ref, ranges] = useHighlightText()
+      const ref = useRef(null)
+      const [ranges] = useHighlightText(ref)
       return (
         <div>
           <div

@@ -9,6 +9,19 @@ export enum ApplyMode {
   UNAPPLY,
 }
 
+// Update represents a change to be made to a Range in the DOM
+type Update = {
+  range: Range;
+  replacement?: Node;
+};
+
+// MarkNode represents a node and its start and end offsets
+type MarkNode = {
+  node: Node;
+  start: number;
+  end: number;
+};
+
 // Get absolute text offset in container
 // Example: if container has "Hello <b>World</b>!", and node is the text node "World" with offset 2, this returns 8
 // (5 for "Hello", 1 for space, 2 into "World")
@@ -36,99 +49,37 @@ export const getTextOffset = (
   return totalOffset;
 };
 
-// Create range from text offset
-export const createRangeFromTextOffset = (
-  rangeInfo: RangeItem,
-  container: Node,
-): Range | null => {
-  const walker = document.createTreeWalker(
-    container,
-    NodeFilter.SHOW_TEXT,
-    null,
-  );
-
-  let currentOffset = 0;
-  let startNode: Node | null = null;
-  let startNodeOffset = 0;
-  let endNode: Node | null = null;
-  let endNodeOffset = 0;
-
-  let currentNode;
-  while ((currentNode = walker.nextNode())) {
-    console.debug("Visiting node:", currentNode.textContent);
-    const nodeLength = currentNode.textContent?.length || 0;
-
-    if (!startNode && currentOffset + nodeLength >= rangeInfo.start) {
-      startNode = currentNode;
-      startNodeOffset = rangeInfo.start - currentOffset;
-
-      if (startNodeOffset === 0) {
-        if (currentOffset + nodeLength == rangeInfo.end) {
-          console.debug(
-            "Range exactly matches node length:",
-            currentNode.textContent,
-          );
-          if (startNode.parentNode) {
-            console.debug("Using parent node as range:", startNode.parentNode);
-            startNode = startNode.parentNode;
-            startNodeOffset = 0;
-            endNode = startNode;
-            endNodeOffset = 1;
-            break;
-          }
-        } else if (currentOffset + nodeLength < rangeInfo.end) {
-          console.debug(
-            "Range extends beyond current node, but covers it fully.",
-          );
-          startNode = currentNode.parentNode || currentNode;
-          startNodeOffset = 0;
-        }
-      }
-    }
-
-    if (currentOffset + nodeLength >= rangeInfo.end) {
-      console.debug("End of range found in node:", currentNode.textContent);
-      endNode = currentNode;
-      endNodeOffset = rangeInfo.end - currentOffset;
-      break;
-    }
-
-    currentOffset += nodeLength;
+const parentNodeIfText = (node: MarkNode): MarkNode => {
+  if (node.node.nodeType === Node.TEXT_NODE && node.node.parentNode) {
+    const newNode = node.node.parentNode;
+    const newStart = getTextOffset(node.node, node.start, newNode);
+    const newEnd = getTextOffset(node.node, node.end, newNode);
+    console.debug(
+      "Wrapping text node, using parent and adjusted offset:",
+      newNode,
+      newStart,
+      newEnd,
+    );
+    return {
+      node: newNode,
+      start: newStart,
+      end: newEnd,
+    };
   }
-
-  if (startNode && endNode) {
-    const range = document.createRange();
-    if (startNode.nodeType === Node.ELEMENT_NODE) {
-      range.setStartBefore(startNode);
-    } else {
-      range.setStart(startNode, startNodeOffset);
-    }
-    range.setEnd(endNode, endNodeOffset);
-    console.debug(startNode.nodeType);
-    console.debug(endNode.nodeType);
-    return range;
-  }
-
-  return null;
+  return node;
 };
 
-// FIXME: This function is incomplete and may not handle all cases correctly
-// - bug with wrapping when range starts at 0 of a text node
-// TODO: Rewrite this function to be more robust + update tests
-export const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
+const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
   const walker = document.createTreeWalker(
     container,
     NodeFilter.SHOW_TEXT,
     null,
   );
 
+  const updates: Array<Update> = [];
+  let startNode: MarkNode | undefined = undefined;
+  let endNode: MarkNode | undefined = undefined;
   let currentOffset = 0;
-  let startNode: Node | null = null;
-  let startNodeOffset = 0;
-  let endNode: Node | null = null;
-  let endNodeOffset = 0;
-
-  const updates: Array<{ range: Range; node: Node }> = [];
 
   let currentNode;
   while ((currentNode = walker.nextNode())) {
@@ -136,9 +87,15 @@ export const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
     console.debug("Current offset:", currentOffset);
     const nodeLength = currentNode.textContent?.length || 0;
 
-    if (!startNode && currentOffset + nodeLength >= rangeInfo.start) {
-      startNode = currentNode;
-      startNodeOffset = rangeInfo.start - currentOffset;
+    console.debug("Node length:", nodeLength);
+    console.debug("Range info:", rangeInfo);
+    console.debug("CurrentOffset + nodeLength:", currentOffset + nodeLength);
+
+    if (!startNode && currentOffset + nodeLength > rangeInfo.start) {
+      console.debug("Determined start node:", currentNode.textContent);
+      console.debug("currentOffset + nodeLength:", currentOffset + nodeLength);
+
+      const startNodeOffset = rangeInfo.start - currentOffset;
 
       if (startNodeOffset === 0) {
         if (currentOffset + nodeLength == rangeInfo.end) {
@@ -146,51 +103,53 @@ export const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
             "Range exactly matches node length:",
             currentNode.textContent,
           );
-          if (startNode.parentNode) {
-            console.debug("Using parent node as range:", startNode.parentNode);
-            startNode = startNode.parentNode;
-            startNodeOffset = 0;
-            endNode = startNode;
-            endNodeOffset = 1;
-            console.debug("wrapping range", startNodeOffset, nodeLength);
-            wrap(startNode, startNodeOffset, nodeLength);
-            break;
-          }
+
+          startNode = {
+            node: currentNode,
+            start: 0,
+            end: nodeLength,
+          };
+          startNode = parentNodeIfText(startNode);
+          endNode = startNode;
+          break;
         } else if (currentOffset + nodeLength < rangeInfo.end) {
           console.debug(
             "Range extends beyond current node, but covers it fully.",
           );
-          startNode = currentNode.parentNode || currentNode;
-          startNodeOffset = rangeInfo.start - currentOffset;
 
-          console.debug("wrapping range", startNodeOffset, nodeLength);
-          const wrapped = wrap(
-            startNode.cloneNode(true),
-            startNodeOffset,
-            nodeLength,
-          );
-          const range = new Range();
-          range.setStartBefore(startNode);
-          range.setEndAfter(startNode);
-          updates.push({ range: range, node: wrapped });
+          startNode = {
+            node: currentNode,
+            start: 0,
+            end: nodeLength,
+          };
+          startNode = parentNodeIfText(startNode);
         }
+      } else {
+        console.debug(
+          "partial start node wrapping",
+          startNodeOffset,
+          nodeLength,
+        );
+
+        startNode = {
+          node: currentNode,
+          start: startNodeOffset,
+          end: nodeLength,
+        };
+        startNode = parentNodeIfText(startNode);
       }
     }
 
     if (currentOffset + nodeLength >= rangeInfo.end) {
       console.debug("End of range found in node:", currentNode.textContent);
-      endNode = currentNode;
-      endNodeOffset = rangeInfo.end - currentOffset;
-      console.debug("wrapping range", 0, endNodeOffset);
-      const wrapped = wrap(
-        endNode.parentNode!.cloneNode(true),
-        0,
-        endNodeOffset,
-      );
-      const range = new Range();
-      range.setStartBefore(endNode.parentNode!);
-      range.setEndAfter(endNode.parentNode!);
-      updates.push({ range: range, node: wrapped });
+      const endNodeOffset = rangeInfo.end - currentOffset;
+
+      endNode = {
+        node: currentNode,
+        start: 0,
+        end: endNodeOffset,
+      };
+      endNode = parentNodeIfText(endNode);
       break;
     }
 
@@ -198,40 +157,84 @@ export const wrapFromTextOffset = (rangeInfo: RangeItem, container: Node) => {
     console.debug("Updated current offset:", currentOffset);
   }
 
-  updates.forEach(({ range, node }) => {
+  console.debug("Start node:", startNode);
+  console.debug("End node:", endNode);
+
+  if (!startNode || !endNode) {
+    console.error("Could not determine start or end node, aborting.");
+    return;
+  }
+
+  if (startNode.node === endNode.node) {
+    console.debug("Start and end node are the same:", startNode.node);
+
+    const range = document.createRange();
+    range.setStartBefore(startNode.node);
+    range.setEndAfter(endNode.node);
+    updates.push({
+      range,
+      replacement: wrap(
+        startNode.node.cloneNode(true),
+        startNode.start,
+        endNode.end,
+      ),
+    });
+  } else {
+    console.debug("Start and end nodes are different.");
+    const startRange = document.createRange();
+    startRange.setStartBefore(startNode.node);
+    startRange.setEndAfter(startNode.node);
+    updates.push({
+      range: startRange,
+      replacement: wrap(
+        startNode.node.cloneNode(true),
+        startNode.start,
+        startNode.end,
+      ),
+    });
+
+    const endRange = document.createRange();
+    endRange.setStartBefore(endNode.node);
+    endRange.setEndAfter(endNode.node);
+    updates.push({
+      range: endRange,
+      replacement: wrap(
+        endNode.node.cloneNode(true),
+        endNode.start,
+        endNode.end,
+      ),
+    });
+  }
+
+  console.debug("Collected updates:", updates.length);
+
+  updates.forEach(({ range }) => {
     console.debug(
-      node.nodeName,
-      node.textContent,
-      (node as HTMLElement).innerHTML,
+      "Range to delete:",
+      range.startContainer,
+      range.startOffset,
+      range.endContainer,
+      range.endOffset,
     );
     range.deleteContents();
   });
 
-  updates.reverse().forEach(({ range, node }) => {
+  updates.reverse().forEach(({ range, replacement }) => {
+    if (!replacement) return;
+
     console.debug(
       "Inserting node:",
-      node.nodeName,
-      node.textContent,
-      (node as HTMLElement).innerHTML,
+      replacement.nodeName,
+      replacement.nodeType,
+      replacement.nodeType === Node.TEXT_NODE
+        ? replacement.textContent
+        : (replacement as HTMLElement).innerHTML,
     );
-    range.insertNode(node);
+
+    range.insertNode(replacement);
   });
-
-  // if (startNode && endNode) {
-  // const range = document.createRange();
-  // if (startNode.nodeType === Node.ELEMENT_NODE) {
-  //   range.setStartBefore(startNode);
-  // } else {
-  //   range.setStart(startNode, startNodeOffset);
-  // }
-  // range.setEnd(endNode, endNodeOffset);
-  // console.debug(startNode.nodeType);
-  // console.debug(endNode.nodeType);
-  // return range;
-  // }
-
-  // return null;
 };
+
 /**
  * Apply or unapply a highlight range to a container node, without modifying the original node.
  * @param range The range to apply or unapply
@@ -246,81 +249,18 @@ export const applyRange = (
 ): Node => {
   const c = container.cloneNode(true);
   console.debug("Applying range:", range, "Mode:", ApplyMode[mode]);
-  // const domRange = createRangeFromTextOffset(range, c);
-  // if (!domRange) return c;
-  //
-  // console.debug(
-  //   "Created DOM Range:",
-  //   domRange.startContainer,
-  //   domRange.startContainer.textContent,
-  //   domRange.startOffset,
-  //   domRange.endContainer,
-  //   domRange.endContainer.textContent,
-  //   domRange.endOffset,
-  // );
 
   try {
-    wrapFromTextOffset(range, c);
-    // const fragment = domRange.cloneContents();
-    // const treeWalker = document.createTreeWalker(c, NodeFilter.SHOW_ALL, null);
-    // const nodesToProcess: Node[] = [];
-    // let currentNode: Node | null = treeWalker.nextNode();
-    // while (currentNode) {
-    //   nodesToProcess.push(currentNode);
-    //   currentNode = treeWalker.nextNode();
-    // }
-    //
-    // nodesToProcess.forEach((node) => {
-    //   if (node.nodeType === Node.TEXT_NODE) {
-    //     if (node === domRange.startContainer) {
-    //       console.debug("Processing start container:", node.textContent);
-    //
-    //       let current = node;
-    //       while (
-    //         current.parentNode &&
-    //         !current.parentNode.contains(domRange.endContainer)
-    //       ) {
-    //         current = current.parentNode;
-    //       }
-    //
-    //       console.debug(
-    //         "Wrapping from start container up to:",
-    //         current.nodeName,
-    //       );
-    //
-    //       current.parentNode?.removeChild(current);
-    //     }
-    //
-    //     if (node === domRange.endContainer) {
-    //       console.debug("Processing end container:", node.textContent);
-    //       // node.parentNode?.parentNode?.removeChild(node.parentNode);
-    //     }
-    //   }
-    // });
-
-    // const fragment = domRange.deleteContents();
-    // const fragment = domRange.extractContents();
-    //
-    // for (const child of Array.from(fragment.childNodes)) {
-    //   console.debug("Extracted node:", child.nodeName, child.textContent);
-    //   console.debug(
-    //     child.childNodes[0].nodeName,
-    //     child.childNodes[0].textContent,
-    //   );
-    // }
-    //
-    // let appliedFragment: Node;
-    // switch (mode) {
-    //   case ApplyMode.APPLY:
-    //     appliedFragment = wrap(fragment);
-    //     break;
-    //   case ApplyMode.UNAPPLY:
-    //     appliedFragment = unwrap(fragment);
-    //     break;
-    //   default:
-    //     throw new Error("Invalid ApplyMode");
-    // }
-    // domRange.insertNode(appliedFragment);
+    switch (mode) {
+      case ApplyMode.APPLY:
+        wrapFromTextOffset(range, c);
+        break;
+      case ApplyMode.UNAPPLY:
+        unwrap(c as DocumentFragment);
+        break;
+      default:
+        throw new Error("Invalid ApplyMode");
+    }
   } catch (error) {
     console.error("Error applying range:", error);
   }
@@ -353,6 +293,7 @@ const wrap = (fragment: Node, startOffset: number, endOffset: number): Node => {
     }
 
     if (currentOffset > endOffset) {
+      console.debug("No more wrapping needed");
       return;
     }
 
@@ -390,10 +331,6 @@ const wrap = (fragment: Node, startOffset: number, endOffset: number): Node => {
 
       currentOffset += textNode.textContent!.length;
     }
-
-    // const span = document.createElement("mark");
-    // span.textContent = textNode.textContent;
-    // textNode.parentNode?.replaceChild(span, textNode);
   });
 
   return fragment;

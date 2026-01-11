@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
+import { useCallback, useEffect, useState, type RefObject } from "react";
 import { getTextOffset, type RangeItem } from "../lib/highlighting";
 
 /**
@@ -44,6 +38,8 @@ export default function useHighlightText(
           containerRef.current,
         ),
       };
+
+      console.debug("Computed range offsets:", result);
 
       return result;
     };
