@@ -72,9 +72,13 @@ export default function useResources(
     const newRead = !found?.read;
     try {
       await updateRead(id, Boolean(newRead));
-      setResources((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)),
-      );
+      if (hideRead && newRead) {
+        setResources((prev) => prev.filter((a) => a.id !== id));
+      } else {
+        setResources((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, read: Boolean(newRead) } : a)),
+        );
+      }
     } catch (err) {
       console.error(err);
     }
