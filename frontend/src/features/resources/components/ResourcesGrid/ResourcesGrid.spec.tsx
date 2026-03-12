@@ -6,8 +6,8 @@ import type { Resource } from '../../types/resource'
 describe('ResourcesGrid', () => {
   it('renders a grid of article cards and forwards handlers', () => {
     const articles: Resource[] = [
-      { id: '1', name: 'A1', type: 'document', source: { name: 'A', url: '' }, createdAt: '', read: false },
-      { id: '2', name: 'A2', type: 'document', source: { name: 'B', url: '' }, createdAt: '', read: false },
+      { id: '1', name: 'A1', type: 'document', source: { name: 'A', url: '' }, createdAt: '', read: false, highlights: [] },
+      { id: '2', name: 'A2', type: 'document', source: { name: 'B', url: '' }, createdAt: '', read: false, highlights: [] },
     ]
     const onToggleRead = vi.fn()
     const onDelete = vi.fn()

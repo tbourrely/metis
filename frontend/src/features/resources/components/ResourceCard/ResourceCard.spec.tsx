@@ -5,7 +5,7 @@ import type { Resource } from '../../types/resource'
 
 describe('ResourceCard', () => {
   it('renders title and author and handles read and delete button clicks', () => {
-    const resource: Resource = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false }
+    const resource: Resource = { id: '1', name: 'Test Article', type: 'document', source: { name: 'Jane Doe', url: '' }, createdAt: '', read: false, highlights: [] }
     const onToggleRead = vi.fn()
     const onDelete = vi.fn()
 
