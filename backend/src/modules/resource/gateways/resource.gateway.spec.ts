@@ -21,7 +21,7 @@ describe('ResourceGateway', () => {
     {
       url: 'https://obie.medium.com/what-happens-when-the-coding-becomes-the-least-interesting-part-of-the-work-ab10c213c660',
       expectedName:
-        'What happens when the coding becomes the least interesting part of the work | by Obie Fernandez | Dec, 2025 | Medium',
+        'What happens when the coding becomes the least interesting part of the work | by Obie Fernandez | Medium',
       expectedType: ResourceType.TEXT,
       expectedSourceName: 'obie.medium.com',
       expectedReadingTime: 8,
