@@ -28,7 +28,7 @@ export default function CreateResourceForm({ onCreated }: { onCreated?: () => vo
       <button type="submit" className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">Add</button>
     </form>
 
-    {error && <p className="text-red-700 mt-2">Failed to create resource</p>}
+    {error && <p className="text-red-700 mt-2">{error.message}</p>}
 
     {created && <p className="text-green-700 mt-2">Resource created successfully!</p>}
   </>);

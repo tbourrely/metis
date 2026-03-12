@@ -38,6 +38,6 @@ describe('CreateResourceForm', () => {
   it('shows error message when hook reports an error', () => {
     errorValue = new Error('create failed')
     render(<CreateResourceForm />)
-    expect(screen.getByText('Failed to create resource')).toBeInTheDocument()
+    expect(screen.getByText('create failed')).toBeInTheDocument()
   })
 })

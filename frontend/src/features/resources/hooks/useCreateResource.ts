@@ -15,6 +15,7 @@ export default function useCreateResource() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
+      if (res.status === 409) throw new Error('This link already exists in your resources.');
       if (!res.ok) throw new Error(`Failed to create resource: ${res.status}`);
       return await res.text();
     } catch (err) {
