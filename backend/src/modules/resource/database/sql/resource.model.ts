@@ -1,5 +1,8 @@
 import { ResourceEntity } from '@modules/resource/domain/resource.entity';
-import { ResourceType } from '@modules/resource/domain/resource.types';
+import {
+  ResourceType,
+  Highlight,
+} from '@modules/resource/domain/resource.types';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
@@ -24,6 +27,8 @@ export class ResourceModel {
   estimatedReadingTime?: number;
   @Column({ type: 'text', nullable: true })
   content?: string;
+  @Column({ type: 'jsonb', default: [] })
+  highlights: Highlight[];
 
   static fromEntity(entity: ResourceEntity): ResourceModel {
     const model = new ResourceModel();
@@ -37,6 +42,7 @@ export class ResourceModel {
     model.read = entity.read;
     model.estimatedReadingTime = entity.estimatedReadingTime;
     model.content = entity.content;
+    model.highlights = entity.highlights;
     return model;
   }
 
@@ -53,6 +59,7 @@ export class ResourceModel {
       read: this.read,
       estimatedReadingTime: this.estimatedReadingTime,
       content: this.content,
+      higlights: this.highlights,
     });
   }
 }

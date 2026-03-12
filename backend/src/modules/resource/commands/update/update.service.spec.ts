@@ -43,8 +43,11 @@ describe('ResourceUpdateService', () => {
         type: ResourceType.TEXT,
         source: { name: 'Sample Source', url: 'http://example.com/data' },
         createdAt,
+        higlights: [],
+        read: false,
       }),
     );
+    const highlights = [{ start: 10, end: 15 }];
     jest.spyOn(repository, 'update').mockResolvedValue(
       new ResourceEntity({
         id: 'resource-id-123',
@@ -52,6 +55,8 @@ describe('ResourceUpdateService', () => {
         type: ResourceType.TEXT,
         source: { name: 'Sample Source', url: 'http://example.com/data' },
         createdAt,
+        read: false,
+        higlights: highlights,
       }),
     );
 
@@ -59,6 +64,10 @@ describe('ResourceUpdateService', () => {
       'resource-id-123',
       undefined,
       'Updated Resource',
+      undefined,
+      undefined,
+      undefined,
+      highlights,
     );
 
     const result = await service.execute(command);
@@ -68,6 +77,7 @@ describe('ResourceUpdateService', () => {
       const updatedResource = result.unwrap();
       expect(updatedResource.name).toBe('Updated Resource');
       expect(updatedResource.source.name).toBe('Sample Source'); // unchanged
+      expect(updatedResource.highlights).toEqual(highlights);
     }
   });
 

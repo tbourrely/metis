@@ -9,4 +9,8 @@ export type Resource = {
   createdAt: string;
   read: boolean;
   estimatedReadingTime?: number;
+  highlights: {
+    start: number;
+    end: number;
+  }[];
 };

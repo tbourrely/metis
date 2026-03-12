@@ -1,6 +1,9 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsInt } from 'class-validator';
 import { ResourceEntity } from '@modules/resource/domain/resource.entity';
-import { ResourceType } from '@modules/resource/domain/resource.types';
+import {
+  Highlight,
+  ResourceType,
+} from '@modules/resource/domain/resource.types';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetByIDDTO {
@@ -16,6 +19,18 @@ export class SourceDTO {
 
   @ApiProperty()
   url: string;
+}
+
+// DTO for highlights
+// both input and output
+export class HighlightDTO {
+  @ApiProperty()
+  @IsInt()
+  readonly start: number;
+
+  @ApiProperty()
+  @IsInt()
+  readonly end: number;
 }
 
 export class ResourceDTO {
@@ -40,6 +55,9 @@ export class ResourceDTO {
   @ApiProperty()
   estimatedReadingTime?: number;
 
+  @ApiProperty({ type: HighlightDTO, isArray: true })
+  highlights: HighlightDTO[];
+
   static fromEntity(entity: ResourceEntity): ResourceDTO {
     const dto = new ResourceDTO();
     dto.id = entity.id;
@@ -52,6 +70,7 @@ export class ResourceDTO {
     dto.createdAt = entity.createdAt.toISOString();
     dto.read = entity.read;
     dto.estimatedReadingTime = entity.estimatedReadingTime;
+    dto.highlights = entity.highlights;
     return dto;
   }
 }

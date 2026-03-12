@@ -1,7 +1,9 @@
 import { ResourceType } from '@modules/resource/domain/resource.types';
+import { HighlightDTO } from '@modules/resource/shared/dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsEnum,
   IsOptional,
   IsString,
@@ -41,4 +43,11 @@ export class UpdateDTO {
   @Type(() => SourceDTO)
   @IsOptional()
   readonly source?: SourceDTO;
+
+  @ApiProperty({ type: [HighlightDTO] })
+  @IsArray()
+  @Type(() => HighlightDTO)
+  @ValidateNested({ each: true })
+  @IsOptional()
+  readonly highlights?: HighlightDTO[];
 }

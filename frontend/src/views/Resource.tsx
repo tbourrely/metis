@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import useResource from '../features/resources/hooks/useResource'
 import ResourceHeader from '../features/resources/components/ResourceHeader'
 import ResourceContentHtml from '../features/resources/components/ResourceContentHtml'
 import FloatingActions from '../features/resources/components/FloatingActions'
 import { isPdf } from '../lib/supportedDocuments'
 import useIsIosDevice from '../hooks/useIsIosDevice'
+import useUpdateHighlights from '../features/resources/hooks/useUpdateHighlights'
 
 function ResourcePdfViewer({ url, isFullScreen }: { url: string; isFullScreen: boolean }) {
   return (
@@ -21,6 +22,15 @@ export default function ResourceView() {
   const { resource, content, read, toggleRead, remove, loading, setContent } = useResource()
   const isIos = useIsIosDevice();
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [updateHighlights] = useUpdateHighlights();
+
+  const handleHighlightChange = useCallback(async (ranges: { start: number; end: number }[]) => {
+    try {
+      await updateHighlights(resource.id, ranges);
+    } catch (err) {
+      console.error('Failed to update highlights:', err);
+    }
+  }, [resource.id, updateHighlights]);
 
   const handleFullScreenChange = () => {
     setIsFullScreen(!isFullScreen);
@@ -40,7 +50,9 @@ export default function ResourceView() {
         </div>
       )}
 
-      {content && resource.type === 'text' && (<ResourceContentHtml html={content} read={read} />)}
+      {!loading && content && resource.type === 'text' && (
+        <ResourceContentHtml html={content} read={read} ranges={resource.highlights} onHighlight={handleHighlightChange} />
+      )}
 
       {!isIos && isPdfDocument && (
         <ResourcePdfViewer url={resource.source.url} isFullScreen={isFullScreen} />

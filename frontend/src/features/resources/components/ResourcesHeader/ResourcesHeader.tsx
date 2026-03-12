@@ -35,7 +35,11 @@ export default function ResourcesHeader({ onCreated }: ResourcesHeaderProps) {
         </div>
 
         <label className="flex items-center">
-          <input type="checkbox" checked={hideRead} onChange={() => navigate({ search: (prev) => ({ ...prev, hideRead: !hideRead }) })} />
+          <input type="checkbox" checked={hideRead} onChange={() => {
+            const next = !hideRead;
+            try { localStorage.setItem('hideRead', String(next)); } catch { /* ignore */ }
+            navigate({ search: (prev) => ({ ...prev, hideRead: next }) });
+          }} />
           <span className="ml-2 text-sm">Hide read resources</span>
         </label>
       </div>

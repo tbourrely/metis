@@ -19,6 +19,7 @@ export default function useResource() {
     source: { name: "Unknown", url: "" },
     createdAt: new Date().toISOString(),
     read: false,
+    highlights: [],
   }); // TODO: do not default to dummy
   const [content, setContent] = useState<string | null>(null);
   const [read, setRead] = useState(false);

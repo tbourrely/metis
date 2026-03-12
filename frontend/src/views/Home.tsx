@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Sidebar from '../components/Sidebar'
 import ResourcesGrid from '../features/resources/components/ResourcesGrid'
 import ResourcesHeader from '../features/resources/components/ResourcesHeader'
@@ -16,6 +17,16 @@ function Home() {
   const { page, search, hideRead } = Route.useSearch();
   const { resources, handleDelete, handleToggleRead, reloadResources, totalPages, totalItems } = useResources(undefined, page, search, hideRead);
   const navigate = Route.useNavigate();
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('hideRead');
+      if (stored !== null && stored === 'true' && !hideRead) {
+        navigate({ search: (prev) => ({ ...prev, hideRead: true }), replace: true });
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="flex h-full min-h-screen">

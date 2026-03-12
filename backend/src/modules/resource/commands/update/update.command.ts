@@ -1,4 +1,7 @@
-import { ResourceType } from '@modules/resource/domain/resource.types';
+import {
+  Highlight,
+  ResourceType,
+} from '@modules/resource/domain/resource.types';
 
 export class UpdateCommand {
   constructor(
@@ -8,5 +11,6 @@ export class UpdateCommand {
     readonly read?: boolean,
     readonly sourceName?: string,
     readonly sourceUrl?: string,
+    readonly highlights?: Highlight[],
   ) {}
 }

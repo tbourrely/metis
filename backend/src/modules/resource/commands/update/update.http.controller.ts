@@ -38,7 +38,10 @@ export class UpdateHttpController {
       body.read,
       body.source?.name,
       body.source?.url,
+      body.highlights || [],
     );
+
+    console.log('UpdateHttpController - command:', command);
 
     const updatedResource: Result<ResourceEntity, Error> =
       await this.commandBus.execute(command);
