@@ -40,6 +40,7 @@ function Home() {
         <div className="flex flex-col sm:flex-row mt-6 gap-4">
           <NavigationBtn disabled={page <= 1} onClick={() => navigate({
             search: (prev) => ({
+              ...prev,
               page: prev.page - 1
             })
           })}>
@@ -48,6 +49,7 @@ function Home() {
 
           <NavigationBtn disabled={page >= totalPages} onClick={() => navigate({
             search: (prev) => ({
+              ...prev,
               page: prev.page + 1
             })
           })}>
