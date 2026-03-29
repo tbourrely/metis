@@ -4,5 +4,17 @@
 @layer base {
   body {
     background-color: #fdf5d8;
+    color: #3d3530;
   }
+}
+
+.prose {
+  --tw-prose-body: #3d3530;
+  --tw-prose-headings: #3d3530;
+  --tw-prose-bold: #3d3530;
+  --tw-prose-links: #3d3530;
+  --tw-prose-counters: #6b5c54;
+  --tw-prose-bullets: #6b5c54;
+  --tw-prose-quotes: #3d3530;
+  --tw-prose-captions: #6b5c54;
 }
