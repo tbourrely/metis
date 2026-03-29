@@ -22,7 +22,7 @@ export default function FloatingActions({ read, onToggleRead, onDelete, onToggle
           {onToggleFullScreen && (
             <button
               onClick={onToggleFullScreen}
-              className="bg-white border p-2 rounded shadow hover:bg-gray-50"
+              className="bg-stone-50 border p-2 rounded shadow hover:bg-stone-100"
               title="Toggle Fullscreen"
             >
               <Fullscreen />
@@ -31,7 +31,7 @@ export default function FloatingActions({ read, onToggleRead, onDelete, onToggle
 
           <button
             onClick={onToggleRead}
-            className="bg-white border p-2 rounded shadow hover:bg-gray-50"
+            className="bg-stone-50 border p-2 rounded shadow hover:bg-stone-100"
             aria-pressed={read}
             title={read ? 'Mark as unread' : 'Mark as read'}
           >
@@ -40,7 +40,7 @@ export default function FloatingActions({ read, onToggleRead, onDelete, onToggle
 
           <button
             onClick={onDelete}
-            className="bg-white border p-2 rounded shadow text-red-600 hover:bg-gray-50"
+            className="bg-stone-50 border p-2 rounded shadow text-red-600 hover:bg-stone-100"
             title="Delete"
           >
             <Bin />
@@ -50,7 +50,7 @@ export default function FloatingActions({ read, onToggleRead, onDelete, onToggle
 
       <button
         onClick={() => setHidden(!hidden)}
-        className="fixed z-55 left-0 bottom-15 p-1 shadow hover:bg-gray-100 hover:cursor-pointer"
+        className="fixed z-55 left-0 bottom-15 p-1 shadow hover:bg-stone-100 hover:cursor-pointer"
         title={hidden ? 'Show actions' : 'Hide actions'}
       >
         {hidden ? '»' : '«'}

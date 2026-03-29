@@ -7,7 +7,7 @@ import { Route } from '../routes'
 
 function NavigationBtn({ onClick, children, disabled }: { onClick: () => void; children: React.ReactNode, disabled: boolean }) {
   return (
-    <button disabled={disabled} className={`px-4 py-2 text-white rounded ${disabled ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700 hover:cursor-pointer'}`} onClick={onClick}>
+    <button disabled={disabled} className={`px-4 py-2 text-white rounded ${disabled ? 'bg-gray-300' : 'bg-teal-700 hover:bg-teal-800 hover:cursor-pointer'}`} onClick={onClick}>
       {children}
     </button>
   )

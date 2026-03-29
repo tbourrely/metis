@@ -136,16 +136,16 @@ export default function UploadJson() {
         {preview && (
           <div className="mb-4">
             <label className="block mb-2">Preview</label>
-            <pre className="bg-gray-100 p-3 rounded max-h-64 overflow-auto"><code>{preview}</code></pre>
+            <pre className="bg-stone-100 p-3 rounded max-h-64 overflow-auto"><code>{preview}</code></pre>
           </div>
         )}
 
         <div className="flex items-center">
-          <button onClick={send} disabled={loading || !parsed} className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
+          <button onClick={send} disabled={loading || !parsed} className="px-4 py-2 bg-teal-700 text-white rounded disabled:opacity-50">
             {loading ? 'Sending...' : 'Send to API'}
           </button>
 
-          <button onClick={() => { setParsed(null); setPreview(''); setFileName(''); setError(''); setSuccess(''); setImportErrors(null); setCreatedUrls(null) }} className="ml-4 px-4 py-2 bg-gray-200 rounded">
+          <button onClick={() => { setParsed(null); setPreview(''); setFileName(''); setError(''); setSuccess(''); setImportErrors(null); setCreatedUrls(null) }} className="ml-4 px-4 py-2 bg-stone-200 rounded">
             Clear
           </button>
         </div>

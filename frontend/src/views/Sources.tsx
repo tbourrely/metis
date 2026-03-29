@@ -28,7 +28,7 @@ export default function Sources() {
           <ul>
             {sources.map((s, idx) => (
               <li key={idx} className="p-3">
-                <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{s.name}</a>
+                <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-teal-700 hover:underline">{s.name}</a>
                 <div className="text-sm text-gray-600">{s.url}</div>
               </li>
             ))}

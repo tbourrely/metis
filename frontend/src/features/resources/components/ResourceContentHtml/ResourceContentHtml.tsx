@@ -39,7 +39,7 @@ export default function ResourceContentHtml({ html, read, ranges = [], onHighlig
   }, [internalRanges, onHighlight]);
 
   return (
-    <div
+    <article
       ref={containerRef}
       className="mt-4 prose prose-xl max-w-none"
       style={{ opacity: read ? 0.8 : 1 }}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import useResource from '../features/resources/hooks/useResource'
 import ResourceHeader from '../features/resources/components/ResourceHeader'
 import ResourceContentHtml from '../features/resources/components/ResourceContentHtml'
@@ -37,6 +37,11 @@ export default function ResourceView() {
   }
 
   const isPdfDocument = resource.type === 'document' && isPdf(resource.source.url);
+
+  useEffect(() => {
+    document.title = resource.name;
+    return () => { document.title = 'Metis'; };
+  }, [resource.name]);
 
   return (
     <div className="p-6 max-w-3xl mx-auto min-h-screen flex flex-col">

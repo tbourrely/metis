@@ -46,9 +46,9 @@ export default function ResourcesHeader({ onCreated }: ResourcesHeaderProps) {
 
       <CreateResourceForm onCreated={onCreated} />
 
-      <hr className="my-4 border-gray-300" />
+      <hr className="my-4 border-stone-300" />
 
-      <input type="text" placeholder="Search resources..." className="border border-gray-300 w-full rounded px-3 py-2" value={search} onChange={handleSearchChange} />
+      <input type="text" placeholder="Search resources..." className="border border-stone-300 w-full rounded px-3 py-2" value={search} onChange={handleSearchChange} />
     </header>
   )
 }

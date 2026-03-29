@@ -13,7 +13,7 @@ const RefreshButton = ({ onClick, loading }: { onClick: () => void; loading: boo
   <button
     onClick={onClick}
     disabled={loading}
-    className="text-blue-600 text-sm mt-1 inline-block cursor-pointer disabled:opacity-50"
+    className="text-teal-700 text-sm mt-1 inline-block cursor-pointer disabled:opacity-50"
   >
     {loading ? 'Refreshing...' : 'Refetch content'}
   </button>
@@ -36,7 +36,7 @@ export default function ResourceHeader({ resource, read, setContent }: Props) {
 
   return (
     <header className="mb-4">
-      <button onClick={() => router.history.back()} className="text-blue-600 hover:underline hover:cursor-pointer inline-block mb-2">← Back</button>
+      <button onClick={() => router.history.back()} className="text-teal-700 hover:underline hover:cursor-pointer inline-block mb-2">← Back</button>
 
       <div className="flex flex-col">
         <h1 className="text-2xl font-bold mt-0 flex items-center gap-2">
@@ -45,7 +45,7 @@ export default function ResourceHeader({ resource, read, setContent }: Props) {
         </h1>
         <p className="text-sm text-gray-600 mt-1">By {resource.source.name} {resource.estimatedReadingTime && (`- ${resource.estimatedReadingTime} min read`)}</p>
         <div className='flex gap-2 mt-1'>
-          <a href={resource.source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm mt-1 inline-block">Original resource</a>
+          <a href={resource.source.url} target="_blank" rel="noopener noreferrer" className="text-teal-700 text-sm mt-1 inline-block">Original resource</a>
           <span>|</span>
           <RefreshButton onClick={handleRefresh} loading={refreshLoading} />
         </div>
