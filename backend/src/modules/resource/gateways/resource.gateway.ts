@@ -6,6 +6,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { Readability } from '@mozilla/readability';
 import puppeteer from 'puppeteer';
+import { PDFParse } from 'pdf-parse';
 
 export type ResourceGetResult = {
   name: string;
@@ -19,6 +20,7 @@ type FetchResult = {
   headers: Record<string, string>;
   content: string;
   status: number;
+  pdfBuffer?: Buffer;
 };
 
 @Injectable()
@@ -51,7 +53,6 @@ export class ResourceGateway {
       result.headers.forEach((value, key) => {
         headers[key.toLowerCase()] = value;
       });
-      const content = await result.text();
       const status = result.status;
 
       if (status >= 400) {
@@ -62,7 +63,18 @@ export class ResourceGateway {
         );
       }
 
-      return Ok({ headers, content, status });
+      const contentType = headers['content-type'] ?? '';
+      let content = '';
+      let pdfBuffer: Buffer | undefined;
+
+      if (contentType.includes('application/pdf')) {
+        const arrayBuffer = await result.arrayBuffer();
+        pdfBuffer = Buffer.from(arrayBuffer);
+      } else {
+        content = await result.text();
+      }
+
+      return Ok({ headers, content, status, pdfBuffer });
     } catch (error) {
       return Err(new Error(`Fetch failed for ${url}: ${error}`));
     }
@@ -140,7 +152,7 @@ export class ResourceGateway {
       contentFetchResult = fetchResult.unwrap();
     }
 
-    const { headers, content: html } = contentFetchResult;
+    const { headers, content: html, pdfBuffer } = contentFetchResult;
 
     const content = this.cleanHtmlContent(html);
 
@@ -149,10 +161,15 @@ export class ResourceGateway {
       return Err(new Error(`Unsupported resource type at ${url}`));
     }
 
-    const name =
-      type === ResourceType.DOCUMENT
-        ? url.split('/').pop() // Use filename from URL for documents
-        : this.extractNameFromMetadata(content, url); // Extract from HTML metadata for text
+    let name: string | null;
+    if (type === ResourceType.DOCUMENT) {
+      const pdfTitle = pdfBuffer
+        ? await this.extractTitleFromPdf(pdfBuffer)
+        : null;
+      name = pdfTitle ?? url.split('/').pop() ?? null;
+    } else {
+      name = this.extractNameFromMetadata(content, url);
+    }
 
     const entity = ResourceEntity.create({
       name: name || defaultResourceName,
@@ -269,6 +286,28 @@ export class ResourceGateway {
 
     const wordsCount = content.split(/\s+/).length;
     return Ok(Math.ceil(wordsCount / wordsPerMinute));
+  }
+
+  /**
+   * Extracts the title from PDF metadata using pdf-parse.
+   *
+   * @param buffer The raw PDF file as a Buffer.
+   * @returns The title string if present in the PDF metadata, otherwise null.
+   */
+  async extractTitleFromPdf(buffer: Buffer): Promise<string | null> {
+    try {
+      const parser = new PDFParse({ data: buffer });
+      const data = await parser.getInfo();
+      const info = data.info as Record<string, unknown> | undefined;
+      const title = info?.['Title'];
+      if (typeof title === 'string' && title.trim().length > 0) {
+        return title.trim();
+      }
+      return null;
+    } catch (error) {
+      Logger.warn(`Failed to extract title from PDF metadata: ${error}`);
+      return null;
+    }
   }
 
   extractNameFromMetadata(content: string, url: string): string | null {
