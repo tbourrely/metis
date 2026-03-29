@@ -8,7 +8,7 @@ type Props = {
 
 export default function ResourceCard({ resource, onToggleRead, onDelete }: Props) {
   return (
-    <article style={{backgroundColor: '#fef6e8'}} className="rounded shadow hover:shadow-md transition h-[12rem]">
+    <article style={{backgroundColor: '#fdf7dc'}} className="rounded shadow hover:shadow-md transition h-[12rem]">
       <a href={`/resources/${resource.id}`}>
         <div className={`p-4 h-3/4 ${resource.read ? 'opacity-60 line-through' : ''}`}>
           <h4 className="font-bold line-clamp-3">{resource.name}</h4>
