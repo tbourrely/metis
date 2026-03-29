@@ -31,9 +31,19 @@ All commands run from `backend/`.
 | Single test by name | `npx jest --testPathPatterns="<file>" --testNamePattern="<name>"` |
 | Watch mode | `npm run test:watch` |
 | Coverage | `npm run test:cov` |
+| Integration tests | `npm run test:integration` |
 | E2E tests | `npm run test:e2e` |
 
 > **Note:** `--testPathPattern` was replaced by `--testPathPatterns` in Jest 30.
+
+### Unit vs. integration test split
+
+Tests that make real network calls live in `*.integration.spec.ts` files and are **excluded from `npm test`** via `testPathIgnorePatterns` in `jest.config.ts`. They run via `npm run test:integration` (local only) using `jest.integration.config.ts` which sets a 30s timeout.
+
+- `npm test` — unit tests only, always safe for CI, no network required.
+- `npm run test:integration` — real-network tests (Puppeteer, external URLs). Run locally to verify gateway behaviour against real sites. Never run in CI.
+
+When writing new gateway tests: if the test makes a real HTTP call, put it in `*.integration.spec.ts`. If it is fully mocked, put it in `*.spec.ts`.
 
 ---
 
@@ -64,7 +74,6 @@ All commands run from `frontend/`.
 3. **Tests:** all relevant tests pass — run the full suite (`npm test` / `npm run test -- --run`) or at minimum the files touched by the change.
 
 Do not consider work done, and do not ask for review, until these three checks are green. If a pre-existing test outside the scope of the change fails, report the name and stack trace and stop — do not attempt broad fixes without explicit approval.
-
 ---
 
 ## Backend Code Style
@@ -124,6 +133,7 @@ Do not consider work done, and do not ask for review, until these three checks a
 - Use `jest.spyOn(instance as any, 'privateMethod')` to spy on private methods when needed.
 - `mockGetInfo` and similar module-level mocks: use `getMockImplementation()` to check if a mock is configured before delegating.
 - Always call `mockReset()` in `beforeEach` for shared mocks.
+- Any test making a real HTTP/network call belongs in `*.integration.spec.ts`, not `*.spec.ts`.
 
 ---
 
