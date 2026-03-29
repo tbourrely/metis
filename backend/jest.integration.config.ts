@@ -3,8 +3,7 @@ import type { Config } from 'jest';
 const config: Config = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',
-  testRegex: '.*\\.spec\\.ts$',
-  testPathIgnorePatterns: ['\\.integration\\.spec\\.ts$'],
+  testRegex: '\\.integration\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
@@ -15,6 +14,7 @@ const config: Config = {
     '^@modules/(.*)': '<rootDir>/modules/$1',
   },
   transformIgnorePatterns: ['<rootDir>/node_modules/jsdom/.*'],
+  testTimeout: 30_000,
 };
 
 export default config;
